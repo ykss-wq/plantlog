@@ -1,11 +1,677 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>PlantLog</title>
+  <meta name="theme-color" content="#0b0f14" />
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root{--bg:#0b0f14;--card:#121823;--muted:#93a4b8;--txt:#e8f0ff;--line:#233043;--btn:#1f2a3a;}
+    body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans JP"; }
+    header{position:sticky;top:0;background:rgba(11,15,20,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:14px 14px 10px;}
+    h1{margin:0;font-size:18px;}
+    .tabs{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+    .tab{padding:10px 12px;border:1px solid var(--line);background:transparent;color:var(--txt);border-radius:12px;font-size:14px}
+    .tab.active{background:var(--btn)}
+    main{padding:14px;max-width:900px;margin:0 auto;}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px 0}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    input,select,textarea,button{font-size:16px;padding:10px;border-radius:12px;border:1px solid var(--line);background:#0f1520;color:var(--txt)}
+    textarea{width:100%;min-height:90px}
+    button{background:var(--btn)}
+    .muted{color:var(--muted);font-size:13px}
+    .grow{flex:1}
+    .list{display:grid;gap:10px}
+    .item{background:#0f1520;border:1px solid var(--line);border-radius:14px;padding:12px}
+    .item h3{margin:0 0 4px;font-size:16px}
+    .badge{display:inline-block;padding:4px 8px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:12px}
+    img{max-width:100%;border-radius:12px;border:1px solid var(--line)}
+    .danger{background:#2a1520}
+    .ok{background:#142a20}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .small{font-size:13px;padding:8px 10px}
+    .sep{height:1px;background:var(--line);margin:10px 0}
+    .kpi{display:flex;gap:10px;flex-wrap:wrap}
+    .kpi .box{background:#0f1520;border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+  </style>
 </head>
 <body>
-  <h1>できた！</h1>
-  <p>自分用Webアプリ。</p>
+<header>
+  <h1>PlantLog（自分用）</h1>
+  <div class="tabs">
+    <button class="tab active" data-tab="today">今日</button>
+    <button class="tab" data-tab="plants">植物</button>
+    <button class="tab" data-tab="add">追加</button>
+    <button class="tab" data-tab="check">病気チェック（C）</button>
+    <button class="tab" data-tab="backup">バックアップ</button>
+  </div>
+</header>
+
+<main>
+  <!-- TODAY -->
+  <section id="tab-today" class="card">
+    <h2 style="margin:0 0 6px;">今日やること</h2>
+    <p class="muted">通知は0円で確実にするため、各植物の「カレンダー通知(.ics)」を生成する方式。</p>
+    <div class="kpi" id="kpi"></div>
+    <div class="sep"></div>
+    <div class="row">
+      <label class="muted">表示場所</label>
+      <select id="todayFilter">
+        <option value="all">全部</option>
+        <option value="自宅">自宅</option>
+        <option value="庭">庭</option>
+        <option value="店">店</option>
+      </select>
+      <label class="muted">期限（日）</label>
+      <input id="dueDays" type="number" min="1" value="3" style="width:90px" />
+    </div>
+    <div class="list" id="todayList" style="margin-top:10px"></div>
+  </section>
+
+  <!-- PLANTS -->
+  <section id="tab-plants" class="card" style="display:none">
+    <div class="row">
+      <h2 style="margin:0" class="grow">植物一覧</h2>
+      <select id="plantFilter">
+        <option value="all">全部</option>
+        <option value="自宅">自宅</option>
+        <option value="庭">庭</option>
+        <option value="店">店</option>
+      </select>
+    </div>
+    <p class="muted">各植物：写真 / メモ / 水やり・肥料・剪定の履歴 / 通知(.ics)</p>
+    <div class="list" id="plantList"></div>
+  </section>
+
+  <!-- ADD -->
+  <section id="tab-add" class="card" style="display:none">
+    <h2 style="margin:0 0 6px;">植物を追加</h2>
+    <div class="row">
+      <input id="name" class="grow" placeholder="植物名（例：オリーブ）" />
+      <select id="place">
+        <option>自宅</option><option>庭</option><option>店</option>
+      </select>
+    </div>
+    <div class="row">
+      <label class="muted">写真</label>
+      <input id="photo" type="file" accept="image/*" />
+    </div>
+    <textarea id="memo" placeholder="メモ（置き場所/日当たり/用土/購入日など）"></textarea>
+    <div class="row">
+      <label class="muted">水やり周期（日）</label><input id="intWater" type="number" min="1" value="3" style="width:90px" />
+      <label class="muted">肥料周期（日）</label><input id="intFert" type="number" min="1" value="14" style="width:90px" />
+      <label class="muted">剪定周期（日）</label><input id="intPrune" type="number" min="1" value="60" style="width:90px" />
+    </div>
+    <div class="row">
+      <label class="muted">通知時刻</label><input id="notifyTime" type="time" value="09:00" />
+      <button id="addPlant">追加</button>
+    </div>
+  </section>
+
+  <!-- CHECK (C) -->
+  <section id="tab-check" class="card" style="display:none">
+    <h2 style="margin:0 0 6px;">病気チェック（C）</h2>
+    <p class="muted">画像AIで病名を当てるのは「完全0円固定」が難しいので、まずは“現場で強い”診断フローにする（症状→原因候補→即行動）。</p>
+
+    <div class="row">
+      <label class="muted">対象植物</label>
+      <select id="checkPlant"></select>
+      <button id="openPlantFromCheck" class="small">詳細を開く</button>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="row">
+      <label class="muted">症状</label>
+      <select id="symptom">
+        <option value="葉が黄色い">葉が黄色い</option>
+        <option value="葉がしおれる">葉がしおれる</option>
+        <option value="葉先が枯れる">葉先が枯れる</option>
+        <option value="斑点が出る">斑点が出る</option>
+        <option value="虫がいる/ベタつく">虫がいる/ベタつく</option>
+        <option value="カビ/白い粉">カビ/白い粉</option>
+        <option value="成長が止まった">成長が止まった</option>
+      </select>
+
+      <label class="muted">環境</label>
+      <select id="envLight">
+        <option value="日当たり良い">日当たり良い</option>
+        <option value="半日陰">半日陰</option>
+        <option value="室内（窓際）">室内（窓際）</option>
+        <option value="室内（暗め）">室内（暗め）</option>
+      </select>
+
+      <label class="muted">直近の水やり</label>
+      <select id="waterRecent">
+        <option value="今日/昨日">今日/昨日</option>
+        <option value="2-3日前">2-3日前</option>
+        <option value="4-7日前">4-7日前</option>
+        <option value="1週間以上">1週間以上</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <label class="muted">用土</label>
+      <select id="soil">
+        <option value="水はけ良い">水はけ良い</option>
+        <option value="普通">普通</option>
+        <option value="重い/乾きにくい">重い/乾きにくい</option>
+      </select>
+
+      <label class="muted">最近の変化</label>
+      <select id="change">
+        <option value="なし">なし</option>
+        <option value="置き場所変更">置き場所変更</option>
+        <option value="植え替え/鉢替え">植え替え/鉢替え</option>
+        <option value="肥料を入れた">肥料を入れた</option>
+        <option value="気温が急変">気温が急変</option>
+      </select>
+    </div>
+
+    <textarea id="checkNote" placeholder="補足（例：葉裏に黒い点、甘いベタつき、根元が柔らかい 等）"></textarea>
+
+    <div class="actions">
+      <button id="runCheck">判定する</button>
+      <button id="saveCheck" class="small">この結果を植物メモに保存</button>
+    </div>
+
+    <div class="sep"></div>
+    <div id="checkResult" class="item"></div>
+  </section>
+
+  <!-- BACKUP -->
+  <section id="tab-backup" class="card" style="display:none">
+    <h2 style="margin:0 0 6px;">バックアップ</h2>
+    <p class="muted">端末内保存（0円）。買い替えに備えてたまに書き出し推奨。</p>
+    <div class="row">
+      <button id="export">バックアップ書き出し（JSON）</button>
+      <input id="import" type="file" accept="application/json" />
+      <button id="wipe" class="danger">全削除（注意）</button>
+    </div>
+    <div class="sep"></div>
+    <p class="muted mono" id="debug"></p>
+  </section>
+</main>
+
+<script>
+/* ====== Storage ====== */
+const KEY = "plantlog_v2";
+const now = () => Date.now();
+const uid = () => Math.random().toString(36).slice(2) + now().toString(36);
+
+function load(){
+  try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
+  catch { return []; }
+}
+function save(items){ localStorage.setItem(KEY, JSON.stringify(items)); }
+
+/* ====== Helpers ====== */
+function toDataURL(file){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onload=()=>resolve(r.result);
+    r.onerror=reject;
+    r.readAsDataURL(file);
+  });
+}
+function fmtDate(ms){
+  if(!ms) return "未設定";
+  return new Date(ms).toLocaleDateString();
+}
+function daysSince(ms){
+  if(!ms) return 99999;
+  return Math.floor((now()-ms)/(1000*60*60*24));
+}
+
+/* ====== ICS download (Calendar notifications) ====== */
+function escapeICS(s){
+  return String(s||"")
+    .replace(/\\/g,"\\\\")
+    .replace(/\n/g,"\\n")
+    .replace(/,/g,"\\,")
+    .replace(/;/g,"\\;");
+}
+function downloadICS({title, intervalDays, timeHHMM, notes=""}){
+  const [hh,mm] = (timeHHMM || "09:00").split(":").map(Number);
+  const dt = new Date();
+  dt.setHours(hh, mm, 0, 0);
+
+  const pad = (n)=> String(n).padStart(2,"0");
+  const y = dt.getFullYear();
+  const m = pad(dt.getMonth()+1);
+  const d = pad(dt.getDate());
+  const H = pad(dt.getHours());
+  const M = pad(dt.getMinutes());
+
+  const dtstart = `${y}${m}${d}T${H}${M}00`;
+  const ics =
+`BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PlantLog//JP
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:${uid()}
+DTSTART:${dtstart}
+RRULE:FREQ=DAILY;INTERVAL=${intervalDays}
+SUMMARY:${escapeICS(title)}
+DESCRIPTION:${escapeICS(notes)}
+END:VEVENT
+END:VCALENDAR`;
+
+  const blob = new Blob([ics], {type:"text/calendar;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${title.replace(/[\\/:*?"<>|]/g,"_")}.ics`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ====== Tabs ====== */
+const tabs = document.querySelectorAll(".tab");
+tabs.forEach(b=>{
+  b.onclick = ()=>{
+    tabs.forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    const t = b.dataset.tab;
+    document.querySelectorAll("main section").forEach(s=>s.style.display="none");
+    document.getElementById("tab-"+t).style.display="block";
+    renderAll();
+  };
+});
+
+/* ====== Render ====== */
+function renderKPI(items){
+  const total = items.length;
+  const dueWater = items.filter(x=>daysSince(x.lastWatered)>=Number(x.intWater||3)).length;
+  const dueFert  = items.filter(x=>daysSince(x.lastFertilized)>=Number(x.intFert||14)).length;
+  const duePrune = items.filter(x=>daysSince(x.lastPruned)>=Number(x.intPrune||60)).length;
+  document.getElementById("kpi").innerHTML = `
+    <div class="box"><div class="muted">登録</div><div><strong>${total}</strong></div></div>
+    <div class="box"><div class="muted">水やり期限</div><div><strong>${dueWater}</strong></div></div>
+    <div class="box"><div class="muted">肥料期限</div><div><strong>${dueFert}</strong></div></div>
+    <div class="box"><div class="muted">剪定期限</div><div><strong>${duePrune}</strong></div></div>
+  `;
+}
+
+function renderToday(items){
+  const place = document.getElementById("todayFilter").value;
+  const dueDays = Number(document.getElementById("dueDays").value || 3);
+
+  const filtered = items.filter(x=> place==="all" ? true : x.place===place);
+
+  const tasks = [];
+  filtered.forEach(x=>{
+    const w = daysSince(x.lastWatered);
+    const f = daysSince(x.lastFertilized);
+    const p = daysSince(x.lastPruned);
+
+    if(w >= dueDays) tasks.push({type:"水やり", days:w, plant:x});
+    if(f >= Math.min(dueDays*5, Number(x.intFert||14))) tasks.push({type:"肥料", days:f, plant:x});
+    if(p >= Math.min(dueDays*20, Number(x.intPrune||60))) tasks.push({type:"剪定", days:p, plant:x});
+  });
+
+  tasks.sort((a,b)=> b.days - a.days);
+
+  const box = document.getElementById("todayList");
+  box.innerHTML = tasks.length ? "" : `<div class="item ok"><strong>今日やること：なし</strong><div class="muted">期限ベースでは問題なし。</div></div>`;
+
+  tasks.forEach(t=>{
+    const x = t.plant;
+    const id = x.id;
+    const el = document.createElement("div");
+    el.className="item";
+    el.innerHTML = `
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <strong>${t.type}</strong>：<span class="muted">${t.days}日前</span><br>
+          <span class="badge">${x.place}</span> <span style="margin-left:6px"><strong>${x.name}</strong></span>
+        </div>
+        <button class="small" data-open="${id}">開く</button>
+      </div>
+    `;
+    el.querySelector('[data-open]').onclick = ()=>{
+      document.querySelector('.tab[data-tab="plants"]').click();
+      setTimeout(()=>document.getElementById("p-"+id)?.scrollIntoView({behavior:"smooth",block:"start"}), 150);
+    };
+    box.appendChild(el);
+  });
+}
+
+function plantCard(x){
+  const id = x.id;
+  const w = daysSince(x.lastWatered);
+  const f = daysSince(x.lastFertilized);
+  const p = daysSince(x.lastPruned);
+
+  const dueW = w >= Number(x.intWater||3);
+  const dueF = f >= Number(x.intFert||14);
+  const dueP = p >= Number(x.intPrune||60);
+
+  return `
+  <div class="item" id="p-${id}">
+    <div class="row" style="justify-content:space-between;align-items:flex-start">
+      <div class="grow">
+        <h3>${x.name} <span class="badge">${x.place}</span></h3>
+        <div class="muted">水やり：${fmtDate(x.lastWatered)}（${w}日前） ${dueW? "⚠️":""}</div>
+        <div class="muted">肥料　：${fmtDate(x.lastFertilized)}（${f}日前） ${dueF? "⚠️":""}</div>
+        <div class="muted">剪定　：${fmtDate(x.lastPruned)}（${p}日前） ${dueP? "⚠️":""}</div>
+      </div>
+      <button class="small danger" data-del="${id}">削除</button>
+    </div>
+
+    ${x.photo ? `<div style="margin-top:10px"><img src="${x.photo}" alt="photo"></div>` : ""}
+
+    <div style="margin-top:10px">
+      <div class="muted">メモ</div>
+      <textarea data-memo="${id}">${x.memo||""}</textarea>
+    </div>
+
+    <div class="actions">
+      <button class="small" data-done="water" data-id="${id}">水やり完了</button>
+      <button class="small" data-done="fert" data-id="${id}">肥料完了</button>
+      <button class="small" data-done="prune" data-id="${id}">剪定完了</button>
+      <button class="small" data-ics="${id}">通知(.ics)作成</button>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <label class="muted">通知時刻</label><input type="time" value="${x.notifyTime||"09:00"}" data-time="${id}">
+      <label class="muted">水(日)</label><input type="number" min="1" value="${x.intWater||3}" style="width:90px" data-intw="${id}">
+      <label class="muted">肥(日)</label><input type="number" min="1" value="${x.intFert||14}" style="width:90px" data-intf="${id}">
+      <label class="muted">剪(日)</label><input type="number" min="1" value="${x.intPrune||60}" style="width:90px" data-intp="${id}">
+    </div>
+
+    <div class="sep"></div>
+    <div class="muted">診断ログ（最新3件）</div>
+    <div class="muted">${(x.checkLogs||[]).slice(0,3).map(v=>`• ${v}`).join("<br>") || "なし"}</div>
+  </div>`;
+}
+
+function renderPlants(items){
+  const f = document.getElementById("plantFilter").value;
+  const list = document.getElementById("plantList");
+  list.innerHTML = "";
+
+  items
+    .filter(x=> f==="all" ? true : x.place===f)
+    .sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))
+    .forEach(x=>{
+      const wrap = document.createElement("div");
+      wrap.innerHTML = plantCard(x);
+      const el = wrap.firstElementChild;
+
+      // delete
+      el.querySelector(`[data-del="${x.id}"]`).onclick = ()=>{
+        if(confirm(`${x.name} を削除する？`)){
+          save(load().filter(v=>v.id!==x.id));
+          renderAll();
+        }
+      };
+
+      // memo
+      el.querySelector(`[data-memo="${x.id}"]`).onchange = (e)=>{
+        const next = load().map(v=>{
+          if(v.id===x.id){ v.memo = e.target.value; v.updatedAt=now(); }
+          return v;
+        });
+        save(next);
+      };
+
+      // done buttons
+      el.querySelectorAll(`[data-id="${x.id}"][data-done]`).forEach(btn=>{
+        btn.onclick = ()=>{
+          const type = btn.dataset.done;
+          const next = load().map(v=>{
+            if(v.id===x.id){
+              if(type==="water") v.lastWatered = now();
+              if(type==="fert") v.lastFertilized = now();
+              if(type==="prune") v.lastPruned = now();
+              v.updatedAt = now();
+            }
+            return v;
+          });
+          save(next); renderAll();
+        };
+      });
+
+      // settings change
+      el.querySelector(`[data-time="${x.id}"]`).onchange = (e)=>{
+        const next = load().map(v=>{
+          if(v.id===x.id){ v.notifyTime = e.target.value; v.updatedAt=now(); }
+          return v;
+        });
+        save(next);
+      };
+      el.querySelector(`[data-intw="${x.id}"]`).onchange = (e)=>{
+        const next = load().map(v=>{
+          if(v.id===x.id){ v.intWater = Number(e.target.value||3); v.updatedAt=now(); }
+          return v;
+        });
+        save(next); renderAll();
+      };
+      el.querySelector(`[data-intf="${x.id}"]`).onchange = (e)=>{
+        const next = load().map(v=>{
+          if(v.id===x.id){ v.intFert = Number(e.target.value||14); v.updatedAt=now(); }
+          return v;
+        });
+        save(next); renderAll();
+      };
+      el.querySelector(`[data-intp="${x.id}"]`).onchange = (e)=>{
+        const next = load().map(v=>{
+          if(v.id===x.id){ v.intPrune = Number(e.target.value||60); v.updatedAt=now(); }
+          return v;
+        });
+        save(next); renderAll();
+      };
+
+      // ics
+      el.querySelector(`[data-ics="${x.id}"]`).onclick = ()=>{
+        const base = `【${x.place}】${x.name}`;
+        const t = x.notifyTime || "09:00";
+        const notes = `メモ: ${x.memo||""}\nPlantLog`;
+        // 水やり
+        downloadICS({title:`${base} 水やり`, intervalDays:Number(x.intWater||3), timeHHMM:t, notes});
+        alert("まず「水やり」の通知(.ics)を作成した。ファイルを開いてカレンダーに追加してね。必要なら肥料/剪定も作る。");
+      };
+
+      list.appendChild(el);
+    });
+}
+
+/* ====== Check (C) ====== */
+function checkLogic({symptom, envLight, waterRecent, soil, change, note}){
+  // ざっくりでも“現場で当たる”優先（0円運用）
+  const hints = [];
+  const actions = [];
+
+  const wetRisk = (soil==="重い/乾きにくい" && (waterRecent==="今日/昨日" || waterRecent==="2-3日前"));
+  const dryRisk = (waterRecent==="1週間以上" || (soil==="水はけ良い" && waterRecent==="4-7日前"));
+
+  if(symptom==="葉が黄色い"){
+    if(wetRisk){ hints.push("過湿/根腐れ気味の可能性"); actions.push("水やり停止→鉢を軽くして乾かす（風通し）","根元が柔らかい/臭いなら植え替え検討"); }
+    if(dryRisk){ hints.push("乾燥ストレスの可能性"); actions.push("朝にたっぷり→受け皿の水は捨てる","直射が強すぎるなら半日陰へ"); }
+    if(change==="肥料を入れた"){ hints.push("肥料焼けの可能性"); actions.push("水で流す（たっぷり灌水）","しばらく追肥停止"); }
+    if(envLight==="室内（暗め）"){ hints.push("光不足で弱っている可能性"); actions.push("窓際へ移動（急に直射はNG）"); }
+  }
+
+  if(symptom==="葉がしおれる"){
+    if(wetRisk){ hints.push("根が酸欠/根腐れ寄り"); actions.push("水やり停止","鉢底の通気確保・用土改善"); }
+    if(dryRisk){ hints.push("水切れ/蒸散過多"); actions.push("たっぷり灌水","風が強い/直射が強いなら環境緩める"); }
+    if(change==="置き場所変更"){ hints.push("環境変化ストレス"); actions.push("1週間は様子見＋水管理を一定に"); }
+  }
+
+  if(symptom==="斑点が出る"){
+    hints.push("病斑（カビ・細菌）or 害虫ダメージ");
+    actions.push("葉裏も確認（黒点/ダニ/スリップス）","風通しUP・葉が濡れたままにしない","広がるなら該当葉を除去");
+  }
+
+  if(symptom==="虫がいる/ベタつく"){
+    hints.push("アブラムシ/カイガラムシ/ハダニ等の可能性");
+    actions.push("葉裏と茎の節をチェック","濡れティッシュで拭き取り→シャワーで流す","増えるなら専用薬剤（必要時）");
+  }
+
+  if(symptom==="カビ/白い粉"){
+    hints.push("うどんこ病などの可能性");
+    actions.push("風通しUP","葉が混みすぎなら間引き","広がる葉は除去");
+  }
+
+  if(symptom==="葉先が枯れる"){
+    hints.push("乾燥/肥料濃度/塩類/寒暖差の可能性");
+    actions.push("水はけと水やり間隔を再調整","肥料は控えめに","急な寒風を避ける");
+  }
+
+  if(symptom==="成長が止まった"){
+    hints.push("光不足・根詰まり・低温期が多い");
+    actions.push("光量を増やす（徐々に）","根詰まりなら植え替え","季節要因なら焦らない");
+  }
+
+  if(!hints.length) hints.push("情報不足（要追加観察）");
+  if(!actions.length) actions.push("葉裏/根元/用土の乾き具合を追加チェック");
+
+  if(note?.trim()){
+    if(note.includes("ベタ") || note.includes("甘") ){ hints.push("ベタつき＝カイガラムシ/アブラムシ寄り"); }
+    if(note.includes("白") && note.includes("粉")){ hints.push("白い粉＝うどんこ寄り"); }
+    if(note.includes("根元") && (note.includes("柔") || note.includes("臭"))){ hints.push("根腐れの可能性高め"); }
+  }
+
+  return {hints, actions};
+}
+
+function renderCheckDropdown(items){
+  const sel = document.getElementById("checkPlant");
+  sel.innerHTML = `<option value="">（選択）</option>` + items.map(x=>`<option value="${x.id}">${x.place}｜${x.name}</option>`).join("");
+}
+
+function renderAll(){
+  const items = load();
+  renderKPI(items);
+  renderToday(items);
+  renderPlants(items);
+  renderCheckDropdown(items);
+  document.getElementById("debug").textContent = `保存件数: ${items.length} / storage: ${KEY}`;
+}
+
+/* ====== Events ====== */
+document.getElementById("todayFilter").onchange = renderAll;
+document.getElementById("dueDays").onchange = renderAll;
+document.getElementById("plantFilter").onchange = renderAll;
+
+document.getElementById("addPlant").onclick = async ()=>{
+  const name = document.getElementById("name").value.trim();
+  if(!name){ alert("植物名を入れて"); return; }
+  const place = document.getElementById("place").value;
+  const memo = document.getElementById("memo").value.trim();
+  const intWater = Number(document.getElementById("intWater").value||3);
+  const intFert  = Number(document.getElementById("intFert").value||14);
+  const intPrune = Number(document.getElementById("intPrune").value||60);
+  const notifyTime = document.getElementById("notifyTime").value || "09:00";
+  const file = document.getElementById("photo").files?.[0];
+  const photo = file ? await toDataURL(file) : "";
+
+  const items = load();
+  items.push({
+    id: uid(),
+    name, place, memo, photo,
+    intWater, intFert, intPrune,
+    notifyTime,
+    lastWatered: null,
+    lastFertilized: null,
+    lastPruned: null,
+    checkLogs: [],
+    createdAt: now(),
+    updatedAt: now(),
+  });
+  save(items);
+
+  // clear
+  document.getElementById("name").value="";
+  document.getElementById("memo").value="";
+  document.getElementById("photo").value="";
+  alert("追加した。次に「植物」タブで通知(.ics)作れる。");
+  document.querySelector('.tab[data-tab="plants"]').click();
+};
+
+document.getElementById("runCheck").onclick = ()=>{
+  const symptom = document.getElementById("symptom").value;
+  const envLight = document.getElementById("envLight").value;
+  const waterRecent = document.getElementById("waterRecent").value;
+  const soil = document.getElementById("soil").value;
+  const change = document.getElementById("change").value;
+  const note = document.getElementById("checkNote").value;
+
+  const r = checkLogic({symptom, envLight, waterRecent, soil, change, note});
+  const box = document.getElementById("checkResult");
+  box.className="item";
+  box.innerHTML = `
+    <strong>原因候補</strong><div class="muted">${r.hints.map(x=>"• "+x).join("<br>")}</div>
+    <div class="sep"></div>
+    <strong>今すぐやること</strong><div class="muted">${r.actions.map(x=>"• "+x).join("<br>")}</div>
+  `;
+};
+
+document.getElementById("saveCheck").onclick = ()=>{
+  const pid = document.getElementById("checkPlant").value;
+  if(!pid){ alert("対象植物を選んで"); return; }
+  const symptom = document.getElementById("symptom").value;
+  const note = document.getElementById("checkNote").value.trim();
+  const text = `${new Date().toLocaleDateString()}｜${symptom}${note?`｜${note}`:""}`;
+
+  const next = load().map(x=>{
+    if(x.id===pid){
+      x.checkLogs = [text, ...(x.checkLogs||[])].slice(0,20);
+      x.updatedAt = now();
+    }
+    return x;
+  });
+  save(next);
+  alert("保存した（植物の詳細に反映）");
+  renderAll();
+};
+
+document.getElementById("openPlantFromCheck").onclick = ()=>{
+  const pid = document.getElementById("checkPlant").value;
+  if(!pid){ alert("対象植物を選んで"); return; }
+  document.querySelector('.tab[data-tab="plants"]').click();
+  setTimeout(()=>document.getElementById("p-"+pid)?.scrollIntoView({behavior:"smooth",block:"start"}), 150);
+};
+
+/* backup */
+document.getElementById("export").onclick = ()=>{
+  const blob = new Blob([JSON.stringify(load(), null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "plantlog_backup.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+document.getElementById("import").onchange = async (e)=>{
+  const f = e.target.files?.[0];
+  if(!f) return;
+  const txt = await f.text();
+  try{
+    const data = JSON.parse(txt);
+    if(!Array.isArray(data)) throw new Error();
+    save(data);
+    alert("復元した");
+    renderAll();
+  }catch{
+    alert("読み込み失敗（JSON形式じゃない）");
+  }
+};
+document.getElementById("wipe").onclick = ()=>{
+  if(confirm("全削除する？（戻せない）")){
+    localStorage.removeItem(KEY);
+    renderAll();
+  }
+};
+
+/* service worker */
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("./sw.js").catch(()=>{});
+}
+
+renderAll();
+</script>
 </body>
 </html>
