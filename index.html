@@ -369,8 +369,8 @@
     <main class="grid">
       <!-- HOME -->
       <section class="card" id="view-home">
-        <h2 class="cardTitle">🏠 ホーム</h2>
-        <div class="sub">まずは “登録 → 一覧 → 詳細” が気持ちよく回る土台。</div>
+        <h2 class="cardTitle">🏠 今日</h2>
+        <div class="sub">期限が近いタスクだけ出す。完了で次の期限に更新。</div>
 
         <div class="hr"></div>
 
@@ -387,6 +387,23 @@
         </div>
 
         <div class="hr"></div>
+
+        <div class="row" style="justify-content:space-between;align-items:flex-end">
+          <div>
+            <div style="font-weight:999">タスク（期限が近いもの）</div>
+            <div class="sub" style="margin-top:4px">近い期限だけ表示。ワンタップで完了。</div>
+          </div>
+          <div class="row" style="gap:6px">
+            <span class="tiny">期限</span>
+            <input id="daysWindow" type="number" min="0" value="3" style="width:78px;text-align:center;font-weight:999" />
+            <span class="tiny">日以内</span>
+          </div>
+        </div>
+
+        <div id="taskList" style="display:grid;gap:10px;margin-top:12px"></div>
+        <div class="sub" id="taskEmpty" style="display:none;margin-top:10px">今日やること：なし</div>
+
+        <div class="hr"></div>
         <div class="tiny">※すべて端末内保存（クラウド送信なし）</div>
       </section>
 
@@ -395,7 +412,7 @@
         <div class="row" style="justify-content:space-between;align-items:flex-end">
           <div>
             <h2 class="cardTitle">🌿 植物</h2>
-            <div class="sub">写真カードで一覧。タップで詳細。</div>
+            <div class="sub">写真カードで一覧。タップで詳細（完了ボタン付き）。</div>
           </div>
           <button class="btn small" id="addFromPlants">➕ 追加</button>
         </div>
@@ -409,7 +426,7 @@
       <!-- ADD -->
       <section class="card" id="view-add" style="display:none">
         <h2 class="cardTitle">➕ 植物を追加</h2>
-        <div class="sub">写真＋名前だけでOK。あとから編集機能はSTEP2で追加。</div>
+        <div class="sub">写真＋名前＋周期だけでOK。</div>
 
         <div class="hr"></div>
 
@@ -422,6 +439,21 @@
 
         <label>置き場所（任意）</label>
         <input id="locInput" placeholder="例：リビング窓際 / 温室" />
+
+        <div class="row" style="margin-top:10px">
+          <div style="flex:1">
+            <label>水やり周期（日）</label>
+            <input id="waterEvery" type="number" min="0" value="7" />
+          </div>
+          <div style="flex:1">
+            <label>肥料周期（日）</label>
+            <input id="fertEvery" type="number" min="0" value="30" />
+          </div>
+          <div style="flex:1">
+            <label>剪定周期（日）</label>
+            <input id="pruneEvery" type="number" min="0" value="90" />
+          </div>
+        </div>
 
         <label>メモ（任意）</label>
         <textarea id="memoInput" placeholder="例：冬は控えめ。葉水は週2。"></textarea>
@@ -494,13 +526,10 @@
   </nav>
 
   <script>
-    /* =========================
-      Utils
-    ========================= */
     const $ = (id)=>document.getElementById(id);
     const views = ["home","plants","add","backup"];
-    const LS_KEY = "plantlog_step1_v1";
-    const THEME_KEY = "plantlog_theme_step1_v1";
+    const LS_KEY = "plantlog_step2_v1";
+    const THEME_KEY = "plantlog_theme_step2_v1";
 
     function nowISO(){ return new Date().toISOString(); }
     function escapeHtml(s=""){
@@ -520,9 +549,10 @@
       return prefix + "_" + Math.random().toString(36).slice(2,10) + "_" + Date.now().toString(36);
     }
 
-    /* =========================
-      State
-    ========================= */
+    function toDateOnly(d){ const x = new Date(d); x.setHours(0,0,0,0); return x; }
+    function addDays(date, days){ const d=new Date(date); d.setDate(d.getDate()+days); return d; }
+    function fmtMD(d){ const x=new Date(d); return `${x.getMonth()+1}/${x.getDate()}`; }
+
     function loadState(){
       const raw = localStorage.getItem(LS_KEY);
       if(!raw) return { plants: [] };
@@ -540,9 +570,6 @@
     }
     let state = loadState();
 
-    /* =========================
-      Theme
-    ========================= */
     function applyTheme(t){
       document.documentElement.setAttribute("data-theme", t);
       localStorage.setItem(THEME_KEY, t);
@@ -556,9 +583,6 @@
       applyTheme(cur==="dark" ? "light" : "dark");
     });
 
-    /* =========================
-      Tabs / Navigation
-    ========================= */
     function showTab(tab){
       views.forEach(v=>{
         $("view-"+v).style.display = (v===tab) ? "" : "none";
@@ -583,7 +607,6 @@
       btn.addEventListener("click", ()=> showTab(btn.dataset.tab));
     });
 
-    // bottom nav hide on scroll
     let lastY = window.scrollY;
     const nav = document.querySelector(".bottomNav");
     window.addEventListener("scroll", () => {
@@ -599,9 +622,11 @@
       setTimeout(()=> nav.classList.remove("hide"), ms);
     }
 
-    /* =========================
-      Home actions
-    ========================= */
+    function openAddCamera(){
+      hideNavTemporarily(1200);
+      setTimeout(()=> $("photoInput").click(), 60);
+    }
+
     $("homeAddBtn").addEventListener("click", ()=>{
       showTab("add");
       openAddCamera();
@@ -616,14 +641,6 @@
       openAddCamera();
     });
 
-    function openAddCamera(){
-      hideNavTemporarily(1200);
-      setTimeout(()=> $("photoInput").click(), 60);
-    }
-
-    /* =========================
-      ADD
-    ========================= */
     $("photoInput").addEventListener("change", async ()=>{
       const f = $("photoInput").files?.[0];
       if(!f) return;
@@ -637,6 +654,9 @@
       $("photoPreview").style.display="none";
       $("nameInput").value="";
       $("locInput").value="";
+      $("waterEvery").value="7";
+      $("fertEvery").value="30";
+      $("pruneEvery").value="90";
       $("memoInput").value="";
     });
 
@@ -659,7 +679,15 @@
         location: $("locInput").value.trim(),
         memo: $("memoInput").value.trim(),
         photoDataUrl,
-        createdAt: nowISO()
+        createdAt: nowISO(),
+
+        waterEvery: parseInt($("waterEvery").value,10) || 0,
+        fertEvery:  parseInt($("fertEvery").value,10)  || 0,
+        pruneEvery: parseInt($("pruneEvery").value,10) || 0,
+
+        lastWaterAt: nowISO(),
+        lastFertAt:  nowISO(),
+        lastPruneAt: nowISO(),
       };
 
       state.plants.unshift(plant);
@@ -669,14 +697,97 @@
       btn.disabled = false;
 
       $("resetAdd").click();
-      renderHome();
       renderPlants();
+      renderHome();
       showTab("plants");
     });
 
-    /* =========================
-      Plants render + Modal detail
-    ========================= */
+    function computeDueTasks(daysWindow){
+      const today = toDateOnly(new Date());
+      const until = addDays(today, daysWindow);
+
+      const tasks=[];
+      for(const p of state.plants){
+        const items=[
+          {kind:"water", label:"💧 水やり", every:p.waterEvery||0, last:p.lastWaterAt || p.createdAt},
+          {kind:"fert",  label:"🧪 肥料",   every:p.fertEvery||0,  last:p.lastFertAt  || p.createdAt},
+          {kind:"prune", label:"✂️ 剪定",   every:p.pruneEvery||0, last:p.lastPruneAt || p.createdAt},
+        ];
+        for(const it of items){
+          if(!it.every || it.every<=0) continue;
+          const base = toDateOnly(new Date(it.last));
+          const due = addDays(base, it.every);
+          if(due>=today && due<=until){
+            tasks.push({ plantId:p.id, plantName:p.name, kind:it.kind, label:it.label, due });
+          }
+        }
+      }
+      tasks.sort((a,b)=>a.due-b.due);
+      return tasks;
+    }
+
+    function markTaskDone(plantId, kind){
+      const idx = state.plants.findIndex(x=>x.id===plantId);
+      if(idx<0) return;
+      const now = nowISO();
+      const p = state.plants[idx];
+      if(kind==="water") p.lastWaterAt = now;
+      if(kind==="fert")  p.lastFertAt  = now;
+      if(kind==="prune") p.lastPruneAt = now;
+      state.plants[idx] = p;
+      saveState();
+    }
+
+    function renderHome(){
+      $("countPill").textContent = String(state.plants.length);
+
+      const days = parseInt($("daysWindow").value || "3", 10) || 3;
+      const tasks = computeDueTasks(days);
+
+      const list = $("taskList");
+      const empty = $("taskEmpty");
+      list.innerHTML = "";
+
+      if(tasks.length===0){
+        empty.style.display="";
+        return;
+      }
+      empty.style.display="none";
+
+      const today = toDateOnly(new Date());
+
+      for(const t of tasks){
+        const diff = Math.round((toDateOnly(t.due) - today) / (1000*60*60*24));
+        const tag = diff===0 ? "今日" : diff===1 ? "明日" : `あと${diff}日`;
+
+        const el = document.createElement("div");
+        el.className="card soft";
+        el.style.padding="12px";
+        el.innerHTML = `
+          <div style="display:flex;gap:12px;align-items:center;justify-content:space-between">
+            <div>
+              <div style="font-weight:999">${escapeHtml(t.plantName)} に ${escapeHtml(t.label)}</div>
+              <div class="tiny" style="margin-top:4px">期限：${fmtMD(t.due)}（${tag}）</div>
+            </div>
+            <div class="row" style="gap:8px">
+              <button class="btn ghost small" data-act="detail">詳細</button>
+              <button class="btn small" data-act="done">完了</button>
+            </div>
+          </div>
+        `;
+
+        el.querySelector('[data-act="detail"]').onclick = ()=> openPlantModal(t.plantId);
+        el.querySelector('[data-act="done"]').onclick = ()=>{
+          markTaskDone(t.plantId, t.kind);
+          renderHome();
+        };
+
+        list.appendChild(el);
+      }
+    }
+
+    $("daysWindow").addEventListener("change", renderHome);
+
     function closeModal(){ $("modalBack").style.display="none"; }
     $("closeModal").addEventListener("click", closeModal);
     $("modalBack").addEventListener("click",(e)=>{ if(e.target.id==="modalBack") closeModal(); });
@@ -717,19 +828,37 @@
       const p = state.plants.find(x=>x.id===id);
       if(!p) return;
 
-      $("modalTitle").textContent = `詳細：${p.name}`;
       const img = p.photoDataUrl ? `<img class="modalImg" src="${p.photoDataUrl}" alt="">` : "";
+      const fmtLast = (iso)=> iso ? fmtMD(iso) : "—";
+      const w = p.waterEvery||0, f=p.fertEvery||0, pr=p.pruneEvery||0;
 
+      $("modalTitle").textContent = `詳細：${p.name}`;
       $("modalBody").innerHTML = `
         ${img}
         <div class="hr"></div>
-        <div class="sub"><b>名前</b><br>${escapeHtml(p.name)}</div>
+
+        <div class="row" style="gap:10px">
+          <button class="btn small" id="markWater">💧 水やり</button>
+          <button class="btn ghost small" id="markFert">🧪 肥料</button>
+          <button class="btn ghost small" id="markPrune">✂️ 剪定</button>
+        </div>
+
         <div class="hr"></div>
+
         <div class="sub"><b>置き場所</b><br>${escapeHtml(p.location || "—")}</div>
         <div class="hr"></div>
         <div class="sub"><b>メモ</b><br>${escapeHtml(p.memo || "—")}</div>
 
         <div class="hr"></div>
+
+        <div class="card soft" style="padding:12px">
+          <div style="font-weight:999;margin-bottom:6px">周期</div>
+          <div class="sub">💧 ${w}日 / 🧪 ${f}日 / ✂️ ${pr}日</div>
+          <div class="tiny" style="margin-top:6px">最終：💧 ${fmtLast(p.lastWaterAt)} / 🧪 ${fmtLast(p.lastFertAt)} / ✂️ ${fmtLast(p.lastPruneAt)}</div>
+        </div>
+
+        <div class="hr"></div>
+
         <div class="row" style="justify-content:space-between">
           <button class="btn danger small" id="deletePlant">🧨 削除</button>
           <button class="btn ghost small" id="closePlant">閉じる</button>
@@ -738,6 +867,20 @@
 
       $("modalBack").style.display="flex";
       $("closePlant").onclick = closeModal;
+
+      const updatePlant = (patch)=>{
+        const idx = state.plants.findIndex(x=>x.id===id);
+        if(idx<0) return;
+        state.plants[idx] = { ...state.plants[idx], ...patch };
+        saveState();
+        renderPlants();
+        renderHome();
+        openPlantModal(id);
+      };
+
+      $("markWater").onclick = ()=> updatePlant({ lastWaterAt: nowISO() });
+      $("markFert").onclick  = ()=> updatePlant({ lastFertAt:  nowISO() });
+      $("markPrune").onclick = ()=> updatePlant({ lastPruneAt: nowISO() });
 
       $("deletePlant").onclick = ()=>{
         if(!confirm("この植物を削除する？（戻せない）")) return;
@@ -749,16 +892,6 @@
       };
     }
 
-    /* =========================
-      Home render
-    ========================= */
-    function renderHome(){
-      $("countPill").textContent = String(state.plants.length);
-    }
-
-    /* =========================
-      Backup
-    ========================= */
     function downloadText(filename, text, mime="application/json"){
       const blob = new Blob([text], { type:mime });
       const url = URL.createObjectURL(blob);
@@ -805,11 +938,8 @@
       alert("全データを消したよ。");
     });
 
-    /* =========================
-      Init
-    ========================= */
-    renderHome();
     renderPlants();
+    renderHome();
     showTab("home");
   </script>
 </body>
