@@ -3,214 +3,306 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>PlantLog（自分用）</title>
-  <meta name="theme-color" content="#0b0f14" />
+  <title>PlantLog（ライト）</title>
+  <meta name="theme-color" content="#f6f7fb" />
 
   <style>
     :root{
-      --bg:#070b10;
-      --card:#0f1722cc;
-      --card2:#0c1320cc;
-      --line:#1a2a3e;
-      --text:#e9eef6;
-      --muted:#9bb0c6;
-      --accent:#26e39b;
-      --accent2:#2bd3ff;
-      --warn:#ffcc66;
-      --danger:#ff6b6b;
-      --ok:#34d399;
-      --shadow: 0 18px 50px rgba(0,0,0,.45);
+      /* Light, eye-friendly */
+      --bg:#f6f7fb;
+      --panel:#ffffff;
+      --panel2:#fbfcff;
+      --line:#e7eaf2;
+      --text:#0f172a;
+      --muted:#64748b;
+
+      --accent:#22c55e;   /* green */
+      --accent2:#06b6d4;  /* cyan */
+      --danger:#ef4444;
+      --warn:#f59e0b;
+
+      --shadow: 0 10px 30px rgba(15, 23, 42, .08);
       --radius:18px;
     }
 
     *{box-sizing:border-box}
-
-    html, body{
+    html,body{
       min-height:100dvh;
-      background:#070b10;
       margin:0;
       padding:0;
-    }
-
-    body{
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",sans-serif;
+      background:var(--bg);
       color:var(--text);
-      background:
-        radial-gradient(1100px 600px at 20% -10%, rgba(38,227,155,.18), transparent 55%),
-        radial-gradient(900px 500px at 90% 10%, rgba(43,211,255,.16), transparent 55%),
-        radial-gradient(900px 600px at 50% 110%, rgba(135,120,255,.12), transparent 55%),
-        linear-gradient(180deg, #060a10 0%, #070b10 100%);
-      padding: calc(env(safe-area-inset-top) + 12px) 14px calc(env(safe-area-inset-bottom) + 18px);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",sans-serif;
     }
 
+    /* 全体余白：上が詰まらないように */
+    body{
+      padding:
+        calc(env(safe-area-inset-top) + 18px)
+        14px
+        calc(env(safe-area-inset-bottom) + 18px);
+    }
+
+    .wrap{max-width:980px;margin:0 auto;}
+    .grid{display:grid;gap:14px;}
+
+    /* header: 余白増やす・詰まり回避 */
     header{
-      position:sticky; top:0;
-      padding: 10px 0 12px;
-      backdrop-filter: blur(14px);
-      background: linear-gradient(180deg, rgba(7,11,16,.85), rgba(7,11,16,.35));
-      border-bottom:1px solid rgba(255,255,255,.06);
+      position:sticky;
+      top:0;
       z-index:10;
+
+      padding: 14px 0 16px;
+      margin: -10px 0 8px;
+
+      background: rgba(246,247,251,.92);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid rgba(231,234,242,.9);
     }
+
+    .topline{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      padding: 0 2px 10px;
+    }
+
     .brand{
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
-      margin:0 2px 10px;
+      display:flex;
+      align-items:center;
+      gap:10px;
     }
-    .brand h1{
+
+    .logo{
+      width:38px;height:38px;
+      border-radius:12px;
+      display:grid;place-items:center;
+      background: linear-gradient(135deg, rgba(34,197,94,.18), rgba(6,182,212,.14));
+      border:1px solid rgba(231,234,242,.9);
+      box-shadow: var(--shadow);
+      font-size:18px;
+    }
+
+    h1{
       margin:0;
       font-size:18px;
       letter-spacing:.2px;
-      display:flex;align-items:center;gap:10px;
+      line-height:1.2;
     }
-    .pill{
-      font-size:12px;color:var(--muted);
-      padding:6px 10px;border:1px solid rgba(255,255,255,.10);
-      border-radius:999px;background:rgba(15,23,34,.55);
-    }
-    .tabs{display:flex;gap:8px;flex-wrap:wrap}
-    .tab{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(15,23,34,.45);
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:999px;
-      font-size:13px;
-      display:flex;align-items:center;gap:8px;
-      cursor:pointer;
-      user-select:none;
-    }
-    .tab.active{
-      border-color: rgba(38,227,155,.55);
-      background: linear-gradient(90deg, rgba(38,227,155,.22), rgba(43,211,255,.14));
-      box-shadow: 0 10px 30px rgba(38,227,155,.10);
+    .subtitle{
+      margin-top:2px;
+      font-size:12px;
+      color:var(--muted);
     }
 
-    .wrap{max-width:980px;margin:0 auto}
-    .grid{display:grid;gap:12px}
+    .pill{
+      font-size:12px;
+      color:var(--muted);
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(255,255,255,.7);
+      box-shadow: 0 6px 18px rgba(15,23,42,.05);
+      white-space:nowrap;
+      align-self:flex-start;
+    }
+
+    /* tabs: 2行でも詰まらない */
+    .tabs{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      padding: 0 2px;
+    }
+    .tab{
+      display:flex;
+      align-items:center;
+      gap:8px;
+
+      padding:12px 14px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.75);
+      color: var(--text);
+      cursor:pointer;
+      user-select:none;
+      font-size:14px;
+      line-height:1;
+      box-shadow: 0 8px 22px rgba(15,23,42,.05);
+    }
+    .tab.active{
+      border-color: rgba(34,197,94,.45);
+      background: linear-gradient(90deg, rgba(34,197,94,.16), rgba(6,182,212,.10));
+    }
+
     .card{
-      border:1px solid rgba(255,255,255,.08);
-      background: linear-gradient(180deg, rgba(15,23,34,.62), rgba(10,15,24,.62));
+      border:1px solid var(--line);
+      background: var(--panel);
       border-radius: var(--radius);
-      padding: 14px;
+      padding: 16px;
       box-shadow: var(--shadow);
     }
-    .card h2{margin:0 0 6px;font-size:18px}
-    .sub{color:var(--muted);font-size:13px;line-height:1.4}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .card h2{
+      margin:0 0 6px;
+      font-size:18px;
+    }
+    .sub{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.5;
+    }
+    .hr{height:1px;background:var(--line);margin:14px 0;}
+
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .split{display:grid;grid-template-columns:1fr;gap:14px;}
+    @media(min-width:860px){ .split{grid-template-columns:1.2fr .8fr} }
+
     .btn{
       border:none;
-      color:#061012;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      color:#052014;
+      background: linear-gradient(90deg, rgba(34,197,94,1), rgba(6,182,212,1));
       padding:12px 14px;
-      border-radius:12px;
-      font-weight:700;
+      border-radius:14px;
+      font-weight:800;
       cursor:pointer;
-      box-shadow: 0 14px 35px rgba(38,227,155,.18);
+      box-shadow: 0 14px 30px rgba(34,197,94,.18);
     }
+    .btn:disabled{opacity:.6;cursor:not-allowed;}
+    .btn.small{padding:10px 12px;font-size:13px;border-radius:12px;}
     .btn.ghost{
-      background:transparent;color:var(--text);
-      border:1px solid rgba(255,255,255,.12);
+      background:transparent;
+      color:var(--text);
+      border:1px solid var(--line);
       box-shadow:none;
     }
     .btn.danger{
-      background:linear-gradient(90deg, #ff6b6b, #ff9f6b);
-      color:#130707;
+      background: linear-gradient(90deg, #ef4444, #fb7185);
+      color:#2a0b0b;
     }
-    .btn.small{padding:10px 12px;font-size:13px;border-radius:12px}
+
     input,select,textarea{
       width:100%;
-      background: rgba(8,12,18,.55);
-      border:1px solid rgba(255,255,255,.10);
+      background: var(--panel2);
+      border:1px solid var(--line);
       color:var(--text);
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 12px 12px;
       outline:none;
       font-size:14px;
     }
-    textarea{min-height:90px;resize:vertical}
-    label{font-size:12px;color:var(--muted);display:block;margin:10px 0 6px}
-    .split{display:grid;grid-template-columns:1fr;gap:12px}
-    @media(min-width:860px){ .split{grid-template-columns:1.25fr .75fr} }
+    textarea{min-height:92px;resize:vertical;}
+    label{font-size:12px;color:var(--muted);display:block;margin:12px 0 6px;}
 
-    .hero{display:grid;grid-template-columns: 1fr;gap:12px;}
-    .heroTop{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;}
-    .heroTitle{font-size:22px;margin:0;letter-spacing:.2px;}
+    /* hero: 明るく */
+    .hero{
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(34,197,94,.08), rgba(6,182,212,.06));
+      border-radius: 18px;
+      padding: 14px;
+    }
+    .heroTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .heroTitle{
+      margin:0;
+      font-size:20px;
+      letter-spacing:.2px;
+    }
     .heroCTA{display:flex;gap:10px;flex-wrap:wrap;}
-    .bigCapture{
-      display:flex;align-items:center;justify-content:center;
-      height:120px;border-radius: 18px;
-      border:1px solid rgba(255,255,255,.10);
-      background:
-        radial-gradient(500px 200px at 30% 20%, rgba(38,227,155,.22), transparent 60%),
-        radial-gradient(500px 220px at 80% 40%, rgba(43,211,255,.18), transparent 60%),
-        rgba(15,23,34,.55);
-      cursor:pointer;box-shadow: var(--shadow);
-      position:relative;overflow:hidden;
+
+    .bigAction{
+      margin-top:12px;
+      padding:14px;
+      border-radius:18px;
+      border:1px dashed rgba(100,116,139,.35);
+      background: rgba(255,255,255,.55);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      cursor:pointer;
     }
-    .bigCapture strong{font-size:16px}
-    .bigCapture span{display:block;color:var(--muted);font-size:12px;margin-top:6px;text-align:center}
-    .bigCapture:after{
-      content:"";position:absolute; inset:-60px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
-      transform: rotate(18deg);
-      animation: shine 4.2s infinite;
-    }
-    @keyframes shine{
-      0%{transform:translateX(-40%) rotate(18deg)}
-      60%{transform:translateX(120%) rotate(18deg)}
-      100%{transform:translateX(120%) rotate(18deg)}
+    .bigAction strong{font-size:15px;}
+    .bigAction span{display:block;color:var(--muted);font-size:12px;margin-top:4px;}
+
+    /* pills row */
+    .miniPills{
+      display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+      margin-top:12px;
     }
 
-    .plantGrid{display:grid;gap:12px;grid-template-columns: repeat(2, minmax(0,1fr));}
+    /* plant grid */
+    .plantGrid{
+      display:grid;
+      gap:12px;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+    }
     @media(min-width:860px){ .plantGrid{grid-template-columns: repeat(3, minmax(0,1fr));} }
 
     .plantCard{
-      border:1px solid rgba(255,255,255,.08);
+      border:1px solid var(--line);
       border-radius: 18px;
       overflow:hidden;
-      background: rgba(12,18,28,.6);
+      background: rgba(255,255,255,.9);
       box-shadow: var(--shadow);
       cursor:pointer;
     }
     .thumb{
       height:130px;
-      background: linear-gradient(90deg, rgba(38,227,155,.15), rgba(43,211,255,.10));
+      background: linear-gradient(90deg, rgba(34,197,94,.10), rgba(6,182,212,.10));
       position:relative;
     }
-    .thumb img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.05) contrast(1.04);}
-    .thumb .badge{
-      position:absolute;left:10px;top:10px;
-      font-size:12px;color:#041012;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      padding:6px 10px;border-radius:999px;font-weight:800;
+    .thumb img{
+      width:100%;height:100%;
+      object-fit:cover;display:block;
     }
-    .plantBody{padding:12px}
-    .plantName{margin:0;font-size:15px;line-height:1.2}
-    .plantMeta{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.35}
+    .badge{
+      position:absolute;left:10px;top:10px;
+      font-size:12px;
+      color:#052014;
+      background: rgba(255,255,255,.85);
+      border:1px solid var(--line);
+      padding:6px 10px;
+      border-radius:999px;
+      font-weight:800;
+      backdrop-filter: blur(8px);
+    }
+    .plantBody{padding:12px;}
+    .plantName{margin:0;font-size:15px;line-height:1.25;}
+    .plantMeta{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.45;}
+
     .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
     .chip{
-      font-size:12px;color:var(--text);
-      padding:6px 10px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(10,15,24,.45);
+      font-size:12px;
+      color:var(--text);
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(251,252,255,.9);
     }
-    .chip.ok{border-color: rgba(52,211,153,.35); }
-    .chip.warn{border-color: rgba(255,204,102,.35); }
-    .chip.bad{border-color: rgba(255,107,107,.35); }
 
-    .tasks{display:grid;gap:10px;margin-top:10px}
+    /* tasks */
+    .tasks{display:grid;gap:10px;margin-top:12px}
     .task{
       display:flex;gap:10px;align-items:flex-start;
-      padding:12px;border-radius:14px;
-      border:1px solid rgba(255,255,255,.08);
-      background: rgba(10,15,24,.45);
+      padding:12px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background: rgba(251,252,255,.92);
     }
     .task input{width:auto;margin-top:2px}
-    .taskTitle{font-weight:800}
+    .taskTitle{font-weight:900}
     .taskSub{color:var(--muted);font-size:12px;margin-top:2px}
 
+    /* Modal */
     .modalBack{
       position:fixed;inset:0;
-      background: rgba(0,0,0,.55);
+      background: rgba(15,23,42,.35);
       display:none;
       align-items:flex-end;
       justify-content:center;
@@ -220,58 +312,72 @@
     .modal{
       width:min(720px, 100%);
       border-radius: 20px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(10,15,24,.92);
-      backdrop-filter: blur(14px);
-      box-shadow: 0 30px 80px rgba(0,0,0,.60);
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 30px 80px rgba(15,23,42,.18);
       overflow:hidden;
     }
     .modalHeader{
-      display:flex;justify-content:space-between;align-items:center;
-      padding:14px 14px;border-bottom:1px solid rgba(255,255,255,.08);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:14px 14px;
+      border-bottom:1px solid var(--line);
     }
     .modalHeader strong{font-size:15px}
     .x{
-      background:transparent;border:1px solid rgba(255,255,255,.14);color:var(--text);
-      border-radius:12px;padding:8px 10px;cursor:pointer
+      background:transparent;
+      border:1px solid var(--line);
+      color:var(--text);
+      border-radius:12px;
+      padding:8px 10px;
+      cursor:pointer
     }
     .modalBody{padding:14px}
     .modalImg{
-      width:100%;height:220px;border-radius:16px;object-fit:cover;
-      border:1px solid rgba(255,255,255,.08)
+      width:100%;
+      height:220px;
+      border-radius:16px;
+      object-fit:cover;
+      border:1px solid var(--line)
     }
-    .muted{color:var(--muted)}
-    .hr{height:1px;background:rgba(255,255,255,.08);margin:12px 0}
     .tiny{font-size:12px;color:var(--muted)}
-    a{color:var(--accent2)}
+    a{color:#0284c7}
   </style>
 </head>
 
 <body>
   <div class="wrap">
     <header>
-      <div class="brand">
-        <h1>🌿 PlantLog <span class="pill">自分用 / 写真カード</span></h1>
-        <span class="pill" id="statusPill">保存: localStorage</span>
+      <div class="topline">
+        <div class="brand">
+          <div class="logo">🌿</div>
+          <div>
+            <h1>PlantLog</h1>
+            <div class="subtitle">目が疲れないライトテーマ / 自分用</div>
+          </div>
+        </div>
+        <div class="pill" id="statusPill">保存: localStorage</div>
       </div>
 
       <div class="tabs" id="tabs">
         <div class="tab active" data-tab="today">🏠 今日</div>
         <div class="tab" data-tab="plants">🌿 植物</div>
         <div class="tab" data-tab="add">➕ 追加</div>
-        <div class="tab" data-tab="diag">🩺 病気チェック（C）</div>
+        <div class="tab" data-tab="diag">🩺 病気チェック</div>
         <div class="tab" data-tab="backup">💾 バックアップ</div>
       </div>
     </header>
 
-    <main class="grid" style="margin-top:18px">
+    <main class="grid" style="margin-top:14px">
       <!-- TODAY -->
       <section class="card" id="view-today">
         <div class="hero">
           <div class="heroTop">
             <div>
               <h2 class="heroTitle">今日やること</h2>
-              <div class="sub">「期限ベース」＋「チェック式」。写真で“診断”もすぐ。</div>
+              <div class="sub">期限ベース＋チェック式。必要なら写真で“状態チェック”も。</div>
             </div>
             <div class="heroCTA">
               <button class="btn small" id="goAdd">➕ 植物を追加</button>
@@ -279,27 +385,25 @@
             </div>
           </div>
 
-          <div class="bigCapture" id="quickDiag">
-            <div style="text-align:center;position:relative;z-index:1">
-              <strong>📸 写真で状態チェック（まずはメモ＋候補）</strong>
-              <span>カメラ or 写真 → 症状質問 → 原因候補と対処</span>
+          <div class="bigAction" id="quickDiag" role="button" aria-label="写真で状態チェックへ">
+            <div>
+              <strong>📸 写真で状態チェック</strong>
+              <span>写真 → 症状質問 → 原因候補と対処（まずはルール式）</span>
             </div>
+            <button class="btn small ghost" type="button">開く</button>
           </div>
 
-          <div class="card" style="padding:12px;background:rgba(12,18,28,.45);box-shadow:none">
-            <div class="row" style="justify-content:space-between">
-              <div class="row">
-                <div class="pill" id="countPill">登録 0</div>
-                <div class="pill" id="duePill">期限タスク 0</div>
-              </div>
-              <div class="row">
-                <div class="tiny">期限(日)</div>
-                <input id="daysWindow" type="number" min="0" value="3" style="width:90px" />
-              </div>
-            </div>
-            <div class="tasks" id="taskList" style="margin-top:12px"></div>
-            <div class="tiny" id="taskEmpty" style="margin-top:10px;display:none">今日やること：なし</div>
+          <div class="miniPills">
+            <span class="pill" id="countPill">登録 0</span>
+            <span class="pill" id="duePill">期限タスク 0</span>
+            <span class="pill">
+              期限(日)
+              <input id="daysWindow" type="number" min="0" value="3" style="width:90px;margin-left:8px;background:transparent;border:none;outline:none;color:var(--text)" />
+            </span>
           </div>
+
+          <div class="tasks" id="taskList"></div>
+          <div class="tiny" id="taskEmpty" style="margin-top:8px;display:none">今日やること：なし</div>
         </div>
       </section>
 
@@ -308,7 +412,7 @@
         <div class="row" style="justify-content:space-between">
           <div>
             <h2>植物</h2>
-            <div class="sub">写真カードで管理。タップで詳細（自動説明つき）・削除。</div>
+            <div class="sub">写真カード管理。タップで詳細（自動説明つき）。</div>
           </div>
           <button class="btn small" id="addFromPlants">➕ 追加</button>
         </div>
@@ -324,10 +428,10 @@
       <!-- ADD -->
       <section class="card" id="view-add" style="display:none">
         <h2>植物を追加</h2>
-        <div class="sub">名前・種・写真・置き場所・周期だけでOK。登録時にWikipediaから説明を自動取得（無料）。</div>
+        <div class="sub">登録時に Wikipedia から説明を自動取得（無料）。取れない時は空のまま。</div>
 
         <div class="split" style="margin-top:12px">
-          <div class="card" style="padding:12px;background:rgba(12,18,28,.45);box-shadow:none">
+          <div class="card" style="padding:14px;background:var(--panel2);box-shadow:none;border:1px solid var(--line)">
             <label>写真（カメラ/アルバム）</label>
             <input id="photoInput" type="file" accept="image/*" capture="environment" />
             <div style="margin-top:10px">
@@ -336,7 +440,7 @@
             </div>
 
             <label style="margin-top:12px">名前</label>
-            <input id="nameInput" placeholder="例：モンステラ" />
+            <input id="nameInput" placeholder="例：モンステラ / コルジリネ" />
 
             <label>種（緑種）</label>
             <input id="speciesInput" placeholder="例：Monstera deliciosa / 観葉植物" />
@@ -368,21 +472,18 @@
             </div>
           </div>
 
-          <div class="card" style="padding:12px;background:rgba(12,18,28,.45);box-shadow:none">
-            <h3 style="margin:0 0 8px">今回の改善点（入れてある）</h3>
+          <div class="card" style="padding:14px;background:var(--panel2);box-shadow:none;border:1px solid var(--line)">
+            <h3 style="margin:0 0 8px">コツ</h3>
             <div class="sub">
-              ✅ 登録時にWikipediaから説明が入る（無料）<br/>
-              ✅ 一覧に「1行説明」表示（スカスカ解消）<br/>
-              ✅ 詳細モーダルに「説明＋出典リンク」<br/>
-              ✅ 期限タスク（今日やること）<br/>
-              ✅ バックアップ（JSON / ics）<br/>
+              ・説明が取れない時は、表記を変えると取れる（例：学名／別名）。<br/>
+              ・写真がなくてもOK（Wikipediaのサムネが出る場合あり）。
             </div>
             <div class="hr"></div>
             <div class="tiny">次の強化（任意）</div>
-            <div class="chips" style="margin-top:8px">
-              <span class="chip">🧾 作業履歴</span>
-              <span class="chip">🪴 置き場所フィルタ</span>
-              <span class="chip">🤖 AI育て方（将来）</span>
+            <div class="row" style="margin-top:10px">
+              <span class="pill">🧾 作業履歴</span>
+              <span class="pill">🪴 置き場所フィルタ</span>
+              <span class="pill">🤖 AI育て方</span>
             </div>
           </div>
         </div>
@@ -390,11 +491,11 @@
 
       <!-- DIAG -->
       <section class="card" id="view-diag" style="display:none">
-        <h2>病気チェック（C）</h2>
-        <div class="sub">写真＋症状質問で「原因候補TOP3」と「対処」を出す（今はルール式）。</div>
+        <h2>病気チェック</h2>
+        <div class="sub">写真＋症状チェックで原因候補と対処（今はルール式）。</div>
 
         <div class="split" style="margin-top:12px">
-          <div class="card" style="padding:12px;background:rgba(12,18,28,.45);box-shadow:none">
+          <div class="card" style="padding:14px;background:var(--panel2);box-shadow:none;border:1px solid var(--line)">
             <label>写真（任意）</label>
             <input id="diagPhotoInput" type="file" accept="image/*" capture="environment" />
             <img id="diagPreview" class="modalImg" style="height:200px;display:none;margin-top:10px" />
@@ -443,7 +544,7 @@
             </div>
 
             <label>メモ</label>
-            <textarea id="diagMemo" placeholder="例：最近寒い／鉢が重い／土が乾かないなど"></textarea>
+            <textarea id="diagMemo" placeholder="例：最近寒い／土が乾かないなど"></textarea>
 
             <div class="row" style="margin-top:12px">
               <button class="btn" id="runDiag">🩺 判定する</button>
@@ -451,11 +552,11 @@
             </div>
           </div>
 
-          <div class="card" style="padding:12px;background:rgba(12,18,28,.45);box-shadow:none">
+          <div class="card" style="padding:14px;background:var(--panel2);box-shadow:none;border:1px solid var(--line)">
             <h3 style="margin:0 0 8px">結果</h3>
-            <div class="sub">今は“ルール式”。後でAIに差し替え可能。</div>
+            <div class="sub">まだ判定してない。</div>
             <div class="hr"></div>
-            <div id="diagResult" class="sub">まだ判定してない。</div>
+            <div id="diagResult" class="sub">症状を選んで「判定する」を押して。</div>
           </div>
         </div>
       </section>
@@ -463,20 +564,19 @@
       <!-- BACKUP -->
       <section class="card" id="view-backup" style="display:none">
         <h2>バックアップ</h2>
-        <div class="sub">データは端末内（localStorage）。ファイルでバックアップ/復元できる。</div>
+        <div class="sub">データは端末内（localStorage）。ファイルでバックアップ/復元。</div>
 
         <div class="split" style="margin-top:12px">
-          <div class="card" style="padding:12px;background:rgba(12,18,28,.45);box-shadow:none">
+          <div class="card" style="padding:14px;background:var(--panel2);box-shadow:none;border:1px solid var(--line)">
             <h3 style="margin:0 0 8px">エクスポート</h3>
             <div class="sub">JSONをダウンロードして保管。</div>
             <div class="row" style="margin-top:10px">
               <button class="btn" id="exportBtn">⬇️ JSON書き出し</button>
-              <button class="btn ghost" id="exportIcsBtn">📆 通知(ics)生成</button>
+              <button class="btn ghost" id="exportIcsBtn">📆 ics生成</button>
             </div>
-            <div class="tiny" style="margin-top:10px">※ icsは「期限日」の通知をカレンダーに入れる方式（0円で確実）</div>
           </div>
 
-          <div class="card" style="padding:12px;background:rgba(12,18,28,.45);box-shadow:none">
+          <div class="card" style="padding:14px;background:var(--panel2);box-shadow:none;border:1px solid var(--line)">
             <h3 style="margin:0 0 8px">インポート</h3>
             <div class="sub">JSONを読み込んで復元。</div>
             <input id="importInput" type="file" accept="application/json" />
@@ -484,7 +584,7 @@
               <button class="btn" id="importBtn">⬆️ 復元する</button>
               <button class="btn danger" id="wipeBtn">🧨 全削除</button>
             </div>
-            <div class="tiny" style="margin-top:10px;color:#ffb4b4">全削除は戻せない（バックアップ推奨）</div>
+            <div class="tiny" style="margin-top:10px;color:#b91c1c">全削除は戻せない（バックアップ推奨）</div>
           </div>
         </div>
       </section>
@@ -506,7 +606,7 @@
     // =========================
     // Utils
     // =========================
-    const LS_KEY = "plantlog_v2";
+    const LS_KEY = "plantlog_light_v1";
     const $ = (id) => document.getElementById(id);
 
     function nowISO(){ return new Date().toISOString(); }
@@ -532,6 +632,17 @@
       const m = String(x.getMonth()+1).padStart(2,"0");
       const dd = String(x.getDate()).padStart(2,"0");
       return `${y}-${m}-${dd}`;
+    }
+    function fileToDataUrl(file){
+      return new Promise((resolve,reject)=>{
+        const r = new FileReader();
+        r.onload = ()=> resolve(r.result);
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+    }
+    function newId(){
+      return "p_" + Math.random().toString(36).slice(2,10) + "_" + Date.now().toString(36);
     }
 
     // =========================
@@ -582,10 +693,6 @@
     }
     let state = loadState();
 
-    function newId(){
-      return "p_" + Math.random().toString(36).slice(2,10) + "_" + Date.now().toString(36);
-    }
-
     // plant schema:
     // {
     //  id, name, species, location, memo,
@@ -622,17 +729,8 @@
     $("quickDiag").onclick = ()=> showTab("diag");
 
     // =========================
-    // Photo preview
+    // Add
     // =========================
-    function fileToDataUrl(file){
-      return new Promise((resolve,reject)=>{
-        const r = new FileReader();
-        r.onload = ()=> resolve(r.result);
-        r.onerror = reject;
-        r.readAsDataURL(file);
-      });
-    }
-
     $("photoInput").addEventListener("change", async ()=>{
       const f = $("photoInput").files?.[0];
       if(!f) return;
@@ -642,9 +740,6 @@
       $("photoHint").textContent = "※ 写真は端末内保存（クラウド送信なし）";
     });
 
-    // =========================
-    // Add Plant (SAVE)
-    // =========================
     $("resetAdd").onclick = ()=>{
       $("photoInput").value = "";
       $("photoPreview").style.display = "none";
@@ -660,10 +755,7 @@
 
     $("savePlant").onclick = async ()=>{
       const name = $("nameInput").value.trim();
-      if(!name){
-        alert("名前を入れて。");
-        return;
-      }
+      if(!name){ alert("名前を入れて。"); return; }
 
       const btn = $("savePlant");
       const prevText = btn.textContent;
@@ -685,19 +777,13 @@
         photoDataUrl = $("photoPreview").src;
       }
 
-      // ✅ 自動説明（無料：Wikipedia）
       const auto = await getAutoDescription(name);
 
       const plant = {
         id: newId(),
-        name,
-        species,
-        location,
-        memo,
+        name, species, location, memo,
         photoDataUrl,
-        waterEvery,
-        fertEvery,
-        pruneEvery,
+        waterEvery, fertEvery, pruneEvery,
         createdAt: nowISO(),
         lastWaterAt: nowISO(),
         lastFertAt: nowISO(),
@@ -720,12 +806,12 @@
     };
 
     // =========================
-    // Plants list
+    // Plants
     // =========================
     function oneLineDesc(p){
       const s = (p.autoDesc || "").replace(/\s+/g," ").trim();
       if(!s) return "";
-      return s.length > 48 ? s.slice(0,48) + "…" : s;
+      return s.length > 52 ? s.slice(0,52) + "…" : s;
     }
 
     function renderPlants(){
@@ -741,18 +827,19 @@
       for(const p of state.plants){
         const card = document.createElement("div");
         card.className = "plantCard";
-        const topBadge = p.location ? escapeHtml(p.location) : "登録済";
+
+        const badge = p.location ? escapeHtml(p.location) : "登録済";
         const thumbUrl = p.photoDataUrl || p.autoThumb || "";
         const desc = oneLineDesc(p);
 
         card.innerHTML = `
           <div class="thumb">
             ${thumbUrl ? `<img src="${thumbUrl}" alt="">` : ""}
-            <div class="badge">${topBadge}</div>
+            <div class="badge">${badge}</div>
           </div>
           <div class="plantBody">
             <h3 class="plantName">${escapeHtml(p.name)}</h3>
-            <div class="plantMeta">${desc ? escapeHtml(desc) : "説明：未取得（名前の表記を変えると取れることあり）"}</div>
+            <div class="plantMeta">${desc ? escapeHtml(desc) : "説明：未取得（表記を変えると取れることあり）"}</div>
             <div class="chips">
               <span class="chip">💧${p.waterEvery||0}日</span>
               <span class="chip">🧪${p.fertEvery||0}日</span>
@@ -760,7 +847,6 @@
             </div>
           </div>
         `;
-
         card.onclick = ()=> openPlantModal(p.id);
         grid.appendChild(card);
       }
@@ -772,13 +858,22 @@
     // =========================
     // Modal detail
     // =========================
-    let currentModalPlantId = null;
+    function updatePlant(id, patch){
+      const idx = state.plants.findIndex(x=>x.id===id);
+      if(idx<0) return;
+      state.plants[idx] = { ...state.plants[idx], ...patch };
+      saveState(state);
+      renderPlants();
+    }
+
+    function closeModal(){ $("modalBack").style.display = "none"; }
+    $("closeModal").onclick = closeModal;
+    $("modalBack").addEventListener("click", (e)=>{ if(e.target.id==="modalBack") closeModal(); });
 
     function openPlantModal(id){
       const p = state.plants.find(x=>x.id===id);
       if(!p) return;
 
-      currentModalPlantId = id;
       $("modalTitle").textContent = `詳細：${p.name}`;
 
       const imgUrl = p.photoDataUrl || p.autoThumb || "";
@@ -790,10 +885,10 @@
         </div>
       ` : `
         <div class="hr"></div>
-        <div class="tiny">説明が取れなかった。名前の表記を変えて再登録すると取れることがある（例：学名／カタカナ表記）。</div>
+        <div class="tiny">説明が取れなかった。別名/学名で再登録すると取れることがある。</div>
       `;
 
-      const body = `
+      $("modalBody").innerHTML = `
         ${imgUrl ? `<img class="modalImg" src="${imgUrl}" alt="">` : ""}
         <div class="hr"></div>
 
@@ -830,7 +925,6 @@
         </div>
 
         <div class="hr"></div>
-
         <div class="tiny">メモ</div>
         <div class="sub">${escapeHtml(p.memo || "—")}</div>
 
@@ -843,28 +937,13 @@
         </div>
       `;
 
-      $("modalBody").innerHTML = body;
       $("modalBack").style.display = "flex";
 
-      $("closePlant").onclick = closeModal;
-
-      $("markWater").onclick = ()=>{
-        updatePlant(id, { lastWaterAt: nowISO() });
-        openPlantModal(id);
-        renderToday();
-      };
-      $("markFert").onclick = ()=>{
-        updatePlant(id, { lastFertAt: nowISO() });
-        openPlantModal(id);
-        renderToday();
-      };
-      $("markPrune").onclick = ()=>{
-        updatePlant(id, { lastPruneAt: nowISO() });
-        openPlantModal(id);
-        renderToday();
-      };
-
-      $("deletePlant").onclick = ()=>{
+      document.getElementById("closePlant").onclick = closeModal;
+      document.getElementById("markWater").onclick = ()=>{ updatePlant(id,{lastWaterAt:nowISO()}); openPlantModal(id); renderToday(); };
+      document.getElementById("markFert").onclick  = ()=>{ updatePlant(id,{lastFertAt:nowISO()}); openPlantModal(id); renderToday(); };
+      document.getElementById("markPrune").onclick = ()=>{ updatePlant(id,{lastPruneAt:nowISO()}); openPlantModal(id); renderToday(); };
+      document.getElementById("deletePlant").onclick = ()=>{
         if(!confirm("この植物を削除する？（戻せない）")) return;
         state.plants = state.plants.filter(x=>x.id!==id);
         saveState(state);
@@ -873,31 +952,14 @@
       };
     }
 
-    function closeModal(){
-      $("modalBack").style.display = "none";
-      currentModalPlantId = null;
-    }
-    $("closeModal").onclick = closeModal;
-    $("modalBack").addEventListener("click", (e)=>{
-      if(e.target.id === "modalBack") closeModal();
-    });
-
-    function updatePlant(id, patch){
-      const idx = state.plants.findIndex(x=>x.id===id);
-      if(idx<0) return;
-      state.plants[idx] = { ...state.plants[idx], ...patch };
-      saveState(state);
-      renderPlants();
-    }
-
     // =========================
-    // Today tasks (due)
+    // Today tasks
     // =========================
     function computeDueTasks(daysWindow){
       const today = toDateOnly(new Date());
       const until = addDays(today, daysWindow);
-
       const tasks = [];
+
       for(const p of state.plants){
         const items = [
           { kind:"water", label:"💧 水やり", every:p.waterEvery||0, last:p.lastWaterAt },
@@ -919,16 +981,15 @@
           }
         }
       }
-
       tasks.sort((a,b)=> a.due - b.due);
       return tasks;
     }
 
     function renderToday(){
       $("countPill").textContent = `登録 ${state.plants.length}`;
+
       const days = clampInt($("daysWindow").value, 3);
       const tasks = computeDueTasks(days);
-
       $("duePill").textContent = `期限タスク ${tasks.length}`;
 
       const list = $("taskList");
@@ -955,7 +1016,6 @@
         const btn = row.querySelector("button");
         btn.onclick = ()=> openPlantModal(t.plantId);
         chk.onchange = ()=>{
-          // チェックは“完了”として最終日を更新（期限管理のため）
           if(!chk.checked) return;
           if(t.kind==="water") updatePlant(t.plantId, { lastWaterAt: nowISO() });
           if(t.kind==="fert")  updatePlant(t.plantId, { lastFertAt: nowISO() });
@@ -990,9 +1050,8 @@
     });
 
     function diagRule(sym, ctx){
-      // 超簡易ルール。目的は「0→1」で動かすこと。
-      const score = new Map(); // cause -> points
-      const add = (k, v)=> score.set(k, (score.get(k)||0) + v);
+      const score = new Map();
+      const add = (k,v)=> score.set(k,(score.get(k)||0)+v);
 
       if(sym.includes("yellow")){
         add("水のやりすぎ（根腐れ）", 2);
@@ -1030,23 +1089,18 @@
       if(ctx.air==="bad") add("風通し不足（カビ）", 2);
 
       const ranked = [...score.entries()].sort((a,b)=> b[1]-a[1]).slice(0,3);
-
-      const tips = [];
-      tips.push("・土が湿りっぱなしなら：鉢底の抜け／根腐れ確認、乾かし気味へ");
-      tips.push("・葉焼け疑い：遮光（レース越し）、葉水は朝〜夕に");
-      tips.push("・害虫疑い：葉裏チェック→シャワー→必要なら薬剤（安全に）");
-      tips.push("・カビ疑い：風通し改善、葉を間引く、土表面を乾かす");
-
+      const tips = [
+        "・土が湿りっぱなしなら：乾かし気味＋鉢底/根を確認",
+        "・葉焼け疑い：遮光（レース越し）＋葉水は朝〜夕",
+        "・害虫疑い：葉裏チェック→シャワー→必要なら薬剤",
+        "・カビ疑い：風通し改善＋土表面を乾かす"
+      ];
       return { ranked, tips };
     }
 
     $("runDiag").onclick = ()=>{
       const sym = [...document.querySelectorAll(".sym:checked")].map(x=>x.value);
-      const ctx = {
-        water: $("ctxWater").value,
-        light: $("ctxLight").value,
-        air: $("ctxAir").value,
-      };
+      const ctx = { water:$("ctxWater").value, light:$("ctxLight").value, air:$("ctxAir").value };
       const plantId = $("diagPlantSelect").value;
       const plant = plantId ? state.plants.find(p=>p.id===plantId) : null;
 
@@ -1057,7 +1111,7 @@
 
       const r = diagRule(sym, ctx);
       const top = r.ranked.length
-        ? r.ranked.map(([k,v],i)=> `<div class="sub"><b>TOP${i+1}</b>：${escapeHtml(k)} <span class="tiny">（根拠スコア ${v}）</span></div>`).join("")
+        ? r.ranked.map(([k,v],i)=> `<div class="sub"><b>TOP${i+1}</b>：${escapeHtml(k)} <span class="tiny">（${v}）</span></div>`).join("")
         : `<div class="sub">情報が少なくて特定できない。症状チェックを増やして。</div>`;
 
       $("diagResult").innerHTML = `
@@ -1079,11 +1133,11 @@
       $("diagPlantSelect").value = "";
       $("diagPhotoInput").value = "";
       $("diagPreview").style.display = "none";
-      $("diagResult").textContent = "まだ判定してない。";
+      $("diagResult").textContent = "症状を選んで「判定する」を押して。";
     };
 
     // =========================
-    // Backup: Export / Import / Wipe
+    // Backup
     // =========================
     function downloadText(filename, text, mime="application/json"){
       const blob = new Blob([text], { type: mime });
@@ -1104,10 +1158,7 @@
 
     $("importBtn").onclick = async ()=>{
       const f = $("importInput").files?.[0];
-      if(!f){
-        alert("JSONファイルを選んで。");
-        return;
-      }
+      if(!f){ alert("JSONファイルを選んで。"); return; }
       try{
         const text = await f.text();
         const obj = JSON.parse(text);
@@ -1132,20 +1183,19 @@
     };
 
     // =========================
-    // ICS（期限通知）生成
+    // ICS
     // =========================
     function icsEscape(s=""){
       return String(s).replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/,/g,"\\,").replace(/;/g,"\\;");
     }
     function toIcsDate(d){
-      // all-day: YYYYMMDD
       const x = new Date(d);
       const y = x.getFullYear();
       const m = String(x.getMonth()+1).padStart(2,"0");
       const dd = String(x.getDate()).padStart(2,"0");
       return `${y}${m}${dd}`;
     }
-    function genIcsForDue(daysWindow=30){
+    function genIcsForDue(daysWindow=60){
       const tasks = computeDueTasks(daysWindow);
       const lines = [];
       lines.push("BEGIN:VCALENDAR");
@@ -1165,7 +1215,6 @@
       lines.push("END:VCALENDAR");
       return lines.join("\r\n");
     }
-
     $("exportIcsBtn").onclick = ()=>{
       const ics = genIcsForDue(60);
       downloadText(`plantlog_due_${fmtDate(new Date())}.ics`, ics, "text/calendar");
@@ -1175,6 +1224,10 @@
     // =========================
     // Init
     // =========================
+    function renderHeaderPills(){
+      $("statusPill").textContent = "保存: localStorage";
+    }
+    renderHeaderPills();
     renderPlants();
     renderToday();
     refreshDiagSelect();
