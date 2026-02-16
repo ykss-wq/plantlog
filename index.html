@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>PlantLog</title>
   <meta name="theme-color" content="#f4efe6" />
+
   <style>
     :root{
       --bg:#f4efe6; --panel:#ffffff; --panel2:#fbf7f0; --line:#e7ded2;
@@ -162,6 +163,17 @@
     .plantName{margin:0;font-size:15px;font-weight:999}
     .plantMeta{margin-top:6px;font-size:12px;color:var(--muted);line-height:1.45}
 
+    .chipRow{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{
+      font-size:12px;padding:7px 10px;border-radius:999px;
+      border:1px solid color-mix(in srgb, var(--line) 92%, transparent);
+      background: color-mix(in srgb, var(--panel2) 90%, transparent);
+      color:var(--text); user-select:none;
+    }
+    .chip.ok{border-color: color-mix(in srgb, var(--ok) 35%, var(--line))}
+    .chip.warn{border-color: color-mix(in srgb, var(--warn) 35%, var(--line))}
+    .chip.bad{border-color: color-mix(in srgb, var(--danger) 35%, var(--line))}
+
     .modalBack{
       position:fixed; inset:0; background: rgba(0,0,0,.26);
       display:none; align-items:flex-end; justify-content:center;
@@ -223,16 +235,6 @@
       transition: transform .08s ease;
     }
     .navMid button:active{transform:scale(var(--tap))}
-    .chipRow{display:flex;gap:8px;flex-wrap:wrap}
-    .chip{
-      font-size:12px;padding:7px 10px;border-radius:999px;
-      border:1px solid color-mix(in srgb, var(--line) 92%, transparent);
-      background: color-mix(in srgb, var(--panel2) 90%, transparent);
-      color:var(--text); user-select:none;
-    }
-    .chip.ok{border-color: color-mix(in srgb, var(--ok) 35%, var(--line))}
-    .chip.warn{border-color: color-mix(in srgb, var(--warn) 35%, var(--line))}
-    .chip.bad{border-color: color-mix(in srgb, var(--danger) 35%, var(--line))}
   </style>
 </head>
 
@@ -244,7 +246,7 @@
           <div class="logo">🍃</div>
           <div>
             <h1 class="title">PlantLog</h1>
-            <div class="subtitle">写真・タスク・診断ログ（端末内保存）</div>
+            <div class="subtitle">写真・タスク・診断ログ・検索メモ（端末内保存）</div>
           </div>
         </div>
         <div class="row" style="justify-content:flex-end">
@@ -266,21 +268,24 @@
       <!-- HOME -->
       <section class="card" id="view-home">
         <h2 class="cardTitle">🏠 ホーム</h2>
-        <div class="sub">期限が近いタスクだけ表示。完了で次の期限に更新。</div>
+        <div class="sub">期限タスク・診断ログ・⭐知見がここに集約。</div>
+
+        <div class="hr"></div>
+
+        <div>
+          <div style="font-weight:999;margin-bottom:6px">🌱 育成経験値（⭐お気に入り数）</div>
+          <div style="background:var(--panel2);border-radius:12px;overflow:hidden;height:16px">
+            <div id="xpBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div>
+          </div>
+          <div class="tiny" id="xpText" style="margin-top:6px"></div>
+        </div>
 
         <div class="hr"></div>
 
         <div class="row">
           <button class="btn" id="homeAddBtn">📷 追加（写真）</button>
-          <button class="btn ghost" id="homePresetBtn">✨ 既定から追加</button>
+          <button class="btn ghost" id="homePresetBtn">✨ 既定から</button>
           <button class="btn ghost" id="homePlantsBtn">🌿 一覧へ</button>
-        </div>
-
-        <div class="hr"></div>
-
-        <div class="row" style="justify-content:space-between">
-          <div class="sub">登録数</div>
-          <div class="pill"><b id="countPill">0</b> 件</div>
         </div>
 
         <div class="hr"></div>
@@ -288,7 +293,7 @@
         <div class="row" style="justify-content:space-between;align-items:flex-end">
           <div>
             <div style="font-weight:999">タスク（期限が近いもの）</div>
-            <div class="sub" style="margin-top:4px">期限の表示範囲を変えられる。</div>
+            <div class="sub" style="margin-top:4px">完了で次の期限に更新。</div>
           </div>
           <div class="row" style="gap:6px">
             <span class="tiny">期限</span>
@@ -298,20 +303,37 @@
         </div>
 
         <div id="taskList" style="display:grid;gap:10px;margin-top:12px"></div>
-        <div class="sub" id="taskEmpty" style="display:none;margin-top:10px">今日やること：なし</div>
+        <div class="sub" id="taskEmpty" style="display:none;margin-top:10px">タスク：なし</div>
 
         <div class="hr"></div>
 
         <div class="row" style="justify-content:space-between;align-items:flex-end">
           <div>
             <div style="font-weight:999">診断ログ（最近）</div>
-            <div class="sub" style="margin-top:4px">写真つきログが残る（軽量保存）。</div>
+            <div class="sub" style="margin-top:4px">写真つき（軽量）で残る。</div>
           </div>
           <button class="btn small ghost" id="homeGoDiag">🩺 診断へ</button>
         </div>
 
         <div id="homeDiagList" style="display:grid;gap:10px;margin-top:12px"></div>
         <div class="sub" id="homeDiagEmpty" style="display:none;margin-top:10px">診断ログ：なし</div>
+
+        <div class="hr"></div>
+
+        <div class="row" style="justify-content:space-between;align-items:flex-end">
+          <div>
+            <div style="font-weight:999">⭐ 最近のお気に入り検索</div>
+            <div class="sub" style="margin-top:4px">育成の知見ストック</div>
+          </div>
+        </div>
+        <div id="homeFavList" style="display:grid;gap:10px;margin-top:12px"></div>
+        <div class="sub" id="homeFavEmpty" style="display:none;margin-top:10px">お気に入り：なし</div>
+
+        <div class="hr"></div>
+        <div class="row" style="justify-content:space-between">
+          <div class="sub">登録数</div>
+          <div class="pill"><b id="countPill">0</b> 件</div>
+        </div>
 
         <div class="hr"></div>
         <div class="tiny">※クラウド送信なし（localStorage保存）</div>
@@ -322,7 +344,7 @@
         <div class="row" style="justify-content:space-between;align-items:flex-end">
           <div>
             <h2 class="cardTitle">🌿 植物</h2>
-            <div class="sub">写真カード。タップで詳細＆完了。</div>
+            <div class="sub">写真カード。タップで詳細＆タスク完了。</div>
           </div>
           <div class="row">
             <button class="btn small" id="plantsAddBtn">➕ 追加</button>
@@ -339,7 +361,7 @@
       <!-- ADD -->
       <section class="card" id="view-add" style="display:none">
         <h2 class="cardTitle">➕ 植物を追加</h2>
-        <div class="sub">写真＋名前＋品種＋周期。診断とタスクに繋がる。</div>
+        <div class="sub">写真＋名前＋品種＋周期。タスクと診断に繋がる。</div>
 
         <div class="hr"></div>
 
@@ -348,7 +370,7 @@
             <label>写真（カメラ/アルバム）</label>
             <input id="photoInput" type="file" accept="image/*" capture="environment" />
             <img id="photoPreview" class="modalImg" style="display:none;margin-top:10px" />
-            <div class="tiny" style="margin-top:8px">※写真は端末内保存（軽量化して保存）</div>
+            <div class="tiny" style="margin-top:8px">※写真は圧縮して端末内保存</div>
 
             <label style="margin-top:12px">名前（表示名）</label>
             <input id="nameInput" placeholder="例：モンステラ" />
@@ -385,7 +407,7 @@
 
           <div class="card soft">
             <h3 style="margin:0 0 10px">✨ 既定テンプレから追加</h3>
-            <div class="sub">よくある観葉植物60種。周期と品種のたたき台になる。</div>
+            <div class="sub">よくある観葉植物60種。周期のたたき台に。</div>
             <div class="hr"></div>
             <label>テンプレを選ぶ</label>
             <select id="presetSelect"></select>
@@ -401,15 +423,15 @@
               <span class="chip">📷 写真は圧縮保存</span>
               <span class="chip">📆 タスク自動</span>
               <span class="chip">🩺 診断ログ</span>
+              <span class="chip">⭐ 知見ストック</span>
             </div>
           </div>
         </div>
       </section>
-
-      <!-- DIAG -->
+            <!-- DIAG -->
       <section class="card" id="view-diag" style="display:none">
         <h2 class="cardTitle">🩺 病気チェック</h2>
-        <div class="sub">写真＋症状質問で「原因候補TOP3」と「対処」を出す（ルール式→後でAI可）。</div>
+        <div class="sub">写真＋症状質問で「原因候補TOP3」と「対処」（ルール式→後でAI可）。</div>
 
         <div class="hr"></div>
 
@@ -421,6 +443,7 @@
 
             <label style="margin-top:12px">この診断を保存する植物（任意）</label>
             <select id="diagPlantSelect"></select>
+            <div class="tiny" style="margin-top:8px">※植物を選ぶと「検索メモを植物に保存」が使える</div>
 
             <label style="margin-top:12px">症状（当てはまるもの）</label>
             <div class="row">
@@ -473,7 +496,7 @@
 
           <div class="card soft">
             <h3 style="margin:0 0 8px">結果</h3>
-            <div class="sub">判定→ログ保存→ホームに表示。写真も圧縮で保存。</div>
+            <div class="sub">判定→ログ保存→ホームに表示。</div>
             <div class="hr"></div>
             <div id="diagResult" class="sub">まだ判定してない。</div>
 
@@ -556,942 +579,1209 @@
   </nav>
 
   <script>
-    // ===== デバッグ：エラーを画面に出す（iPhoneでも分かる） =====
-(function(){
-  const show = (msg) => {
-    const pill = document.getElementById("statusPill");
-    if (pill) pill.textContent = "エラー: " + msg;
-    alert("エラー: " + msg); // 一旦は強制表示（原因が分かれば消してOK）
-  };
+    /* ==========================
+       PlantLog (Single File)
+       ========================== */
 
-  window.addEventListener("error", (e) => show(e.message || "unknown error"));
-  window.addEventListener("unhandledrejection", (e) => show(e?.reason?.message || String(e.reason || "unknown rejection")));
+    /* ===== Helpers ===== */
+    const $ = (id)=>document.getElementById(id);
+    const views = ["home","plants","add","diag","backup"];
+    const LS_KEY = "plantlog_full_v2";
+    const THEME_KEY = "plantlog_theme_full_v2";
 
-  // 必須関数が無いと全部止まるので先にチェック
-  window.addEventListener("DOMContentLoaded", () => {
-    const mustFns = ["showTab","hideNav","saveState","renderPlants","renderHome","compressImageFile","fileToDataUrl","escapeHtml","nowISO","newId"];
-    const missingFns = mustFns.filter(n => typeof window[n] !== "function");
-    if (missingFns.length) show("関数が無い: " + missingFns.join(", "));
-  });
-})();
-/* ===== PlantLog v1 (PART 1/3) =====/
-/* ===== PlantLog v1 (PART 2/3) ===== */
-const $ = (id)=>document.getElementById(id);
-const views = ["home","plants","add","diag","backup"];
-const LS_KEY = "plantlog_full_v1";
-const THEME_KEY = "plantlog_theme_full_v1";
+    function nowISO(){ return new Date().toISOString(); }
+    function escapeHtml(s=""){
+      return String(s).replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[m]));
+    }
+    function newId(prefix="x"){
+      return prefix + "_" + Math.random().toString(36).slice(2,10) + "_" + Date.now().toString(36);
+    }
+    function toDateOnly(d){ const x=new Date(d); x.setHours(0,0,0,0); return x; }
+    function addDays(date, days){ const d=new Date(date); d.setDate(d.getDate()+days); return d; }
+    function fmtMD(d){ const x=new Date(d); return `${x.getMonth()+1}/${x.getDate()}`; }
+    function fmtHM(d){ const x=new Date(d); return `${String(x.getHours()).padStart(2,"0")}:${String(x.getMinutes()).padStart(2,"0")}`; }
 
-function nowISO(){ return new Date().toISOString(); }
-function escapeHtml(s=""){
-  return String(s).replace(/[&<>"']/g, m => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[m]));
-}
-function newId(prefix="p"){
-  return prefix + "_" + Math.random().toString(36).slice(2,10) + "_" + Date.now().toString(36);
-}
-function toDateOnly(d){ const x=new Date(d); x.setHours(0,0,0,0); return x; }
-function addDays(date, days){ const d=new Date(date); d.setDate(d.getDate()+days); return d; }
-function fmtMD(d){ const x=new Date(d); return `${x.getMonth()+1}/${x.getDate()}`; }
-function fmtHM(d){ const x=new Date(d); return `${String(x.getHours()).padStart(2,"0")}:${String(x.getMinutes()).padStart(2,"0")}`; }
+    /* ===== Image (compress) ===== */
+    function fileToDataUrl(file){
+      return new Promise((resolve,reject)=>{
+        const r=new FileReader();
+        r.onload=()=>resolve(r.result);
+        r.onerror=reject;
+        r.readAsDataURL(file);
+      });
+    }
+    async function compressImageFile(file, maxW=900, quality=0.82){
+      const dataUrl = await fileToDataUrl(file);
+      const img = new Image();
+      await new Promise((res,rej)=>{ img.onload=res; img.onerror=rej; img.src=dataUrl; });
+      const w = img.naturalWidth || img.width;
+      const h = img.naturalHeight || img.height;
+      const scale = Math.min(1, maxW / w);
+      const nw = Math.max(1, Math.round(w * scale));
+      const nh = Math.max(1, Math.round(h * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = nw; canvas.height = nh;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img,0,0,nw,nh);
+      return canvas.toDataURL("image/jpeg", quality);
+    }
 
-/* ===== 画像圧縮（軽量保存） ===== */
-function fileToDataUrl(file){
-  return new Promise((resolve,reject)=>{
-    const r=new FileReader();
-    r.onload=()=>resolve(r.result);
-    r.onerror=reject;
-    r.readAsDataURL(file);
-  });
-}
-async function compressImageFile(file, maxW=900, quality=0.82){
-  const dataUrl = await fileToDataUrl(file);
-  const img = new Image();
-  await new Promise((res,rej)=>{ img.onload=res; img.onerror=rej; img.src=dataUrl; });
-  const w = img.naturalWidth || img.width;
-  const h = img.naturalHeight || img.height;
-  const scale = Math.min(1, maxW / w);
-  const nw = Math.max(1, Math.round(w * scale));
-  const nh = Math.max(1, Math.round(h * scale));
-  const canvas = document.createElement("canvas");
-  canvas.width = nw; canvas.height = nh;
-  const ctx = canvas.getContext("2d");
-  ctx.drawImage(img,0,0,nw,nh);
-  return canvas.toDataURL("image/jpeg", quality);
-}
-
-/* ===== 保存 ===== */
-function loadState(){
-  const raw = localStorage.getItem(LS_KEY);
-  if(!raw) return { plants:[], diagLogs:[] };
-  try{
-    const st = JSON.parse(raw);
-    return {
-      plants: Array.isArray(st.plants)? st.plants:[],
-      diagLogs: Array.isArray(st.diagLogs)? st.diagLogs:[]
-    };
-  }catch{
-    return { plants:[], diagLogs:[] };
-  }
-}
-function saveState(){
-  localStorage.setItem(LS_KEY, JSON.stringify(state));
-  $("statusPill").textContent="保存: 端末の中 ✓";
-  setTimeout(()=> $("statusPill").textContent="保存: 端末の中", 800);
-}
-let state = loadState();
-
-/* ===== テーマ ===== */
-function applyTheme(t){
-  document.documentElement.setAttribute("data-theme", t==="dark"?"dark":"beige");
-  localStorage.setItem(THEME_KEY, t);
-  $("themeBtn").textContent = (t==="dark")?"☀️ ベージュ":"🌙 ダーク";
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if(meta) meta.setAttribute("content", (t==="dark")?"#070b10":"#f4efe6");
-}
-applyTheme(localStorage.getItem(THEME_KEY)||"beige");
-$("themeBtn").addEventListener("click",()=>{
-  const cur = localStorage.getItem(THEME_KEY)||"beige";
-  applyTheme(cur==="dark"?"beige":"dark");
-});
-
-/* ===== 画面切替 ===== */
-function showTab(tab){
-  views.forEach(v=>{
-    const el = $("view-"+v);
-    if(el) el.style.display = (v===tab)?"":"none";
-  });
-  document.querySelectorAll(".tab").forEach(el=>{
-    el.classList.toggle("active", el.dataset.tab===tab);
-  });
-  document.querySelectorAll(".navBtn").forEach(el=>{
-    el.classList.toggle("active", el.dataset.tab===tab);
-  });
-  if(tab==="plants") renderPlants();
-  if(tab==="home") renderHome();
-  if(tab==="diag") renderDiagLogs();
-}
-$("tabs").addEventListener("click",(e)=>{
-  const t = e.target.closest(".tab");
-  if(!t) return;
-  showTab(t.dataset.tab);
-});
-document.querySelectorAll(".navBtn").forEach(btn=>{
-  btn.addEventListener("click",()=>showTab(btn.dataset.tab));
-});
-
-/* ===== 下ナビ自動隠し ===== */
-let lastY = window.scrollY;
-const nav = document.querySelector(".bottomNav");
-window.addEventListener("scroll",()=>{
-  const y=window.scrollY;
-  const down=y>lastY;
-  if(down && y>24) nav.classList.add("hide");
-  else nav.classList.remove("hide");
-  lastY=y;
-},{passive:true});
-function hideNav(ms=1100){
-  nav.classList.add("hide");
-  setTimeout(()=>nav.classList.remove("hide"),ms);
-}
-
-/* ===== 60種テンプレ ===== */
-const PRESETS = [
-["モンステラ","Monstera deliciosa",7,30,90],
-["コルジリネ","Cordyline",7,30,90],
-["ポトス","Epipremnum aureum",7,30,60],
-["サンスベリア","Dracaena trifasciata",14,45,120],
-["パキラ","Pachira aquatica",7,30,90],
-["フィカス・ウンベラータ","Ficus umbellata",7,30,90],
-["フィカス・ベンガレンシス","Ficus benghalensis",7,30,90],
-["フィロデンドロン","Philodendron",7,30,90],
-["ガジュマル","Ficus microcarpa",7,30,90],
-["アンスリウム","Anthurium",7,30,60],
-["ストレリチア","Strelitzia",7,30,90],
-["ドラセナ","Dracaena",10,30,120],
-["アロカシア","Alocasia",7,30,60],
-["カラテア","Calathea",7,30,60],
-["オリーブ","Olea europaea",10,45,120],
-["ローズマリー","Rosmarinus",7,45,120],
-["ラベンダー","Lavandula",7,45,120],
-["バジル","Ocimum basilicum",3,21,30],
-["ミント","Mentha",3,21,30],
-["アイビー","Hedera",7,30,90],
-["シダ","Fern",7,30,90],
-["クワズイモ","Alocasia odora",7,30,90],
-["シンゴニウム","Syngonium",7,30,60],
-["アグラオネマ","Aglaonema",7,30,90],
-["ホヤ","Hoya",10,30,90],
-["カポック","Schefflera",7,30,90],
-["ユッカ","Yucca",14,45,120],
-["ディフェンバキア","Dieffenbachia",7,30,60],
-["エバーフレッシュ","Albizia julibrissin",7,30,90],
-["トックリラン","Beaucarnea",14,45,120],
-["ベゴニア","Begonia",7,30,60],
-["セローム","Philodendron selloum",7,30,90],
-["アロエ","Aloe",14,45,120],
-["エケベリア","Echeveria",14,45,120],
-["ハオルチア","Haworthia",14,45,120],
-["カランコエ","Kalanchoe",10,30,60],
-["クッカバラ","Philodendron xanadu",7,30,90],
-["モンステラ・アダンソニー","Monstera adansonii",7,30,90],
-["グズマニア","Guzmania",7,30,60],
-["エアプランツ","Tillandsia",5,30,90],
-["ブーゲンビリア","Bougainvillea",7,45,120],
-["シマトネリコ","Fraxinus griffithii",7,30,120],
-["レモン","Citrus limon",7,45,120],
-["アボカド","Persea americana",7,45,120],
-["サボテン","Cactus",14,45,180],
-["柱サボテン","Cereus",14,45,180],
-["ゴムの木","Ficus elastica",7,30,90],
-["ベンジャミン","Ficus benjamina",7,30,90],
-["パンダガジュマル","Ficus microcarpa panda",7,30,90],
-["ペペロミア","Peperomia",7,30,90],
-["スパティフィラム","Spathiphyllum",7,30,60],
-["リプサリス","Rhipsalis",7,30,90],
-["ネフロレピス","Nephrolepis",7,30,60],
-["アレカヤシ","Dypsis lutescens",7,30,90],
-["チャメドレア","Chamaedorea",7,30,90],
-["テーブルヤシ","Chamaedorea elegans",7,30,90],
-["ポリシャス","Polyscias",7,30,90],
-["クルシア","Clusia",7,30,90],
-["セダム","Sedum",10,30,120]
-];
-
-function initPresets(){
-  const sel = $("presetSelect");
-  sel.innerHTML="";
-  PRESETS.forEach((p,i)=>{
-    const opt=document.createElement("option");
-    opt.value=i;
-    opt.textContent=p[0];
-    sel.appendChild(opt);
-  });
-}
-initPresets();
-    /* ===== UI：モーダル ===== */
-function openModal(title, html){
-  $("modalTitle").textContent = title;
-  $("modalBody").innerHTML = html;
-  $("modalBack").style.display = "flex";
-}
-function closeModal(){ $("modalBack").style.display="none"; }
-$("closeModal").addEventListener("click", closeModal);
-$("modalBack").addEventListener("click",(e)=>{ if(e.target.id==="modalBack") closeModal(); });
-
-/* ===== 下ナビ：中央＋でカメラ起動 ===== */
-$("nav-add").addEventListener("click", ()=>{
-  showTab("add");
-  openAddCamera();
-});
-function openAddCamera(){
-  hideNav(1300);
-  setTimeout(()=> $("photoInput").click(), 60);
-}
-
-/* ===== Homeボタン ===== */
-$("homeAddBtn").addEventListener("click", ()=>{
-  showTab("add"); openAddCamera();
-});
-$("homePresetBtn").addEventListener("click", ()=>{ showTab("add"); $("presetSelect").focus(); });
-$("homePlantsBtn").addEventListener("click", ()=> showTab("plants"));
-$("homeGoDiag").addEventListener("click", ()=> showTab("diag"));
-
-/* ===== Plantsボタン ===== */
-$("plantsAddBtn").addEventListener("click", ()=>{ showTab("add"); openAddCamera(); });
-$("plantsPresetBtn").addEventListener("click", ()=>{ showTab("add"); $("presetSelect").focus(); });
-
-/* ===== 既定 → 入力に反映 ===== */
-function presetToForm(idx){
-  const p = PRESETS[idx];
-  if(!p) return;
-  $("nameInput").value = p[0];
-  $("speciesInput").value = p[1];
-  $("waterEvery").value = String(p[2]);
-  $("fertEvery").value  = String(p[3]);
-  $("pruneEvery").value = String(p[4]);
-}
-$("presetFillBtn").addEventListener("click", ()=>{
-  presetToForm(parseInt($("presetSelect").value,10)||0);
-  alert("入力欄に反映したよ。写真を撮って『追加する』が最速。");
-});
-$("presetQuickAddBtn").addEventListener("click", ()=>{
-  const idx = parseInt($("presetSelect").value,10)||0;
-  const p = PRESETS[idx];
-  if(!p) return;
-  const plant = makePlant({
-    name:p[0], species:p[1], location:"", memo:"",
-    waterEvery:p[2], fertEvery:p[3], pruneEvery:p[4],
-    photoDataUrl:""
-  });
-  state.plants.unshift(plant);
-  saveState();
-  renderPlants(); renderHome(); refreshDiagPlantSelect();
-  alert("追加したよ（写真なし）。あとで写真を撮って更新もできる。");
-  showTab("plants");
-});
-
-/* ===== 追加フォーム ===== */
-$("photoInput").addEventListener("change", async ()=>{
-  const f = $("photoInput").files?.[0];
-  if(!f) return;
-  try{
-    const dataUrl = await compressImageFile(f, 980, 0.82);
-    $("photoPreview").src = dataUrl;
-    $("photoPreview").style.display = "";
-    $("photoPreview").dataset.dataurl = dataUrl;
-  }catch{
-    const raw = await fileToDataUrl(f);
-    $("photoPreview").src = raw;
-    $("photoPreview").style.display = "";
-    $("photoPreview").dataset.dataurl = raw;
-  }
-});
-$("resetAdd").addEventListener("click", ()=>{
-  $("photoInput").value="";
-  $("photoPreview").style.display="none";
-  $("photoPreview").src="";
-  $("photoPreview").dataset.dataurl="";
-  $("nameInput").value="";
-  $("speciesInput").value="";
-  $("locInput").value="";
-  $("waterEvery").value="7";
-  $("fertEvery").value="30";
-  $("pruneEvery").value="90";
-  $("memoInput").value="";
-});
-
-function makePlant({name,species,location,memo,photoDataUrl,waterEvery,fertEvery,pruneEvery}){
-  const now = nowISO();
-  return {
-    id:newId("p"),
-    name, species, location, memo,
-    photoDataUrl: photoDataUrl || "",
-    createdAt: now,
-
-    waterEvery: Number(waterEvery)||0,
-    fertEvery:  Number(fertEvery)||0,
-    pruneEvery: Number(pruneEvery)||0,
-
-    lastWaterAt: now,
-    lastFertAt:  now,
-    lastPruneAt: now
-  };
-}
-
-$("savePlant").addEventListener("click", async ()=>{
-  const name = $("nameInput").value.trim();
-  if(!name){ alert("名前を入れて。"); return; }
-
-  const btn = $("savePlant");
-  const prev = btn.textContent;
-  btn.textContent="保存中…"; btn.disabled=true;
-
-  const plant = makePlant({
-    name,
-    species: $("speciesInput").value.trim(),
-    location:$("locInput").value.trim(),
-    memo:$("memoInput").value.trim(),
-    waterEvery:$("waterEvery").value,
-    fertEvery:$("fertEvery").value,
-    pruneEvery:$("pruneEvery").value,
-    photoDataUrl:$("photoPreview").dataset.dataurl || ""
-  });
-
-  state.plants.unshift(plant);
-  saveState();
-
-  btn.textContent=prev; btn.disabled=false;
-  $("resetAdd").click();
-
-  renderPlants(); renderHome(); refreshDiagPlantSelect();
-  showTab("plants");
-});
-
-/* ===== タスク自動生成 ===== */
-function computeDueTasks(daysWindow){
-  const today = toDateOnly(new Date());
-  const until = addDays(today, daysWindow);
-
-  const tasks=[];
-  for(const p of state.plants){
-    const items=[
-      {kind:"water", label:"💧 水やり", every:p.waterEvery||0, last:p.lastWaterAt||p.createdAt},
-      {kind:"fert",  label:"🧪 肥料",   every:p.fertEvery||0,  last:p.lastFertAt||p.createdAt},
-      {kind:"prune", label:"✂️ 剪定",   every:p.pruneEvery||0, last:p.lastPruneAt||p.createdAt},
-    ];
-    for(const it of items){
-      if(!it.every || it.every<=0) continue;
-      const base = toDateOnly(new Date(it.last));
-      const due = addDays(base, it.every);
-      if(due>=today && due<=until){
-        tasks.push({ plantId:p.id, plantName:p.name, kind:it.kind, label:it.label, due });
+    /* ===== Save / Load ===== */
+    function loadState(){
+      const raw = localStorage.getItem(LS_KEY);
+      if(!raw) return { plants:[], diagLogs:[] };
+      try{
+        const st = JSON.parse(raw);
+        return {
+          plants: Array.isArray(st.plants)? st.plants:[],
+          diagLogs: Array.isArray(st.diagLogs)? st.diagLogs:[]
+        };
+      }catch{
+        return { plants:[], diagLogs:[] };
       }
     }
-  }
-  tasks.sort((a,b)=>a.due-b.due);
-  return tasks;
-}
-function markTaskDone(plantId, kind){
-  const idx = state.plants.findIndex(x=>x.id===plantId);
-  if(idx<0) return;
-  const now = nowISO();
-  const p = state.plants[idx];
-  if(kind==="water") p.lastWaterAt=now;
-  if(kind==="fert")  p.lastFertAt=now;
-  if(kind==="prune") p.lastPruneAt=now;
-  state.plants[idx]=p;
-  saveState();
-}
-
-/* ===== レンダリング：Home ===== */
-function renderHome(){
-  $("countPill").textContent = String(state.plants.length);
-
-  const days = parseInt($("daysWindow").value||"3",10) || 3;
-  const tasks = computeDueTasks(days);
-  const list = $("taskList");
-  list.innerHTML="";
-
-  const empty = $("taskEmpty");
-  if(tasks.length===0){
-    empty.style.display="";
-  }else{
-    empty.style.display="none";
-    const today = toDateOnly(new Date());
-    for(const t of tasks){
-      const diff = Math.round((toDateOnly(t.due)-today)/(1000*60*60*24));
-      const tag = diff===0 ? "今日" : diff===1 ? "明日" : `あと${diff}日`;
-      const el = document.createElement("div");
-      el.className="card soft";
-      el.style.padding="12px";
-      el.innerHTML = `
-        <div style="display:flex;gap:12px;align-items:center;justify-content:space-between">
-          <div>
-            <div style="font-weight:999">${escapeHtml(t.plantName)} に ${escapeHtml(t.label)}</div>
-            <div class="tiny" style="margin-top:4px">期限：${fmtMD(t.due)}（${tag}）</div>
-          </div>
-          <div class="row" style="gap:8px">
-            <button class="btn ghost small" data-act="detail">詳細</button>
-            <button class="btn small" data-act="done">完了</button>
-          </div>
-        </div>`;
-      el.querySelector('[data-act="detail"]').onclick=()=>openPlantModal(t.plantId);
-      el.querySelector('[data-act="done"]').onclick=()=>{
-        markTaskDone(t.plantId, t.kind);
-        renderHome();
-      };
-      list.appendChild(el);
+    function saveState(){
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+      $("statusPill").textContent="保存: 端末の中 ✓";
+      setTimeout(()=> $("statusPill").textContent="保存: 端末の中", 800);
     }
-  }
-  renderHomeDiag();
-}
-$("daysWindow").addEventListener("change", renderHome);
+    let state = loadState();
 
-/* ===== レンダリング：Plants ===== */
-function renderPlants(){
-  const grid = $("plantGrid");
-  grid.innerHTML="";
-  if(state.plants.length===0){
-    $("plantEmpty").style.display="";
-    return;
-  }
-  $("plantEmpty").style.display="none";
+    /* ===== Parse old memo blocks (legacy) ===== */
+    function parseSearchMemos(memoText){
+      const text = memoText || "";
+      const re = /\[検索メモ ([^\]]+)\]\n([\s\S]*?)(?=\n\n\[検索メモ |\s*$)/g;
+      const out = [];
+      let m;
+      while((m = re.exec(text))){
+        out.push({ at: m[1].trim(), body: (m[2]||"").trim() });
+      }
+      return out;
+    }
 
-  for(const p of state.plants){
-    const card=document.createElement("div");
-    card.className="plantCard";
-    const thumb = p.photoDataUrl || "";
-    const badge = p.location ? escapeHtml(p.location) : (p.species ? escapeHtml(p.species) : "登録済");
-    card.innerHTML=`
-      <div class="thumb">
-        ${thumb? `<img src="${thumb}" alt="">` : ``}
-        <div class="badge">${badge}</div>
-      </div>
-      <div class="plantBody">
-        <div class="plantName">${escapeHtml(p.name)}</div>
-        <div class="plantMeta">${escapeHtml(p.memo || "メモなし")}</div>
-      </div>`;
-    card.addEventListener("click",()=>openPlantModal(p.id));
-    grid.appendChild(card);
-  }
-}
+    function normalizeState(){
+      state.plants = (state.plants||[]).map(p=>({
+        ...p,
+        searchMemos: Array.isArray(p.searchMemos) ? p.searchMemos : []
+      }));
 
-/* ===== 植物詳細（モーダル） ===== */
-function openPlantModal(id){
-  const p = state.plants.find(x=>x.id===id);
-  if(!p) return;
-
-  const img = p.photoDataUrl ? `<img class="modalImg" src="${p.photoDataUrl}" alt="">` : "";
-  const fmtLast = (iso)=> iso ? fmtMD(iso) : "—";
-
-  openModal(`詳細：${p.name}`, `
-    ${img}
-    <div class="hr"></div>
-
-    <div class="row" style="gap:10px">
-      <button class="btn small" id="markWater">💧 水やり</button>
-      <button class="btn ghost small" id="markFert">🧪 肥料</button>
-      <button class="btn ghost small" id="markPrune">✂️ 剪定</button>
-    </div>
-
-    <div class="hr"></div>
-
-    <div class="sub"><b>品種</b><br>${escapeHtml(p.species || "—")}</div>
-    <div class="hr"></div>
-    <div class="sub"><b>置き場所</b><br>${escapeHtml(p.location || "—")}</div>
-    <div class="hr"></div>
-    <div class="sub"><b>メモ</b><br>${escapeHtml(p.memo || "—")}</div>
-
-    <div class="hr"></div>
-
-    <div class="card soft" style="padding:12px">
-      <div style="font-weight:999;margin-bottom:6px">周期</div>
-      <div class="sub">💧 ${p.waterEvery||0}日 / 🧪 ${p.fertEvery||0}日 / ✂️ ${p.pruneEvery||0}日</div>
-      <div class="tiny" style="margin-top:6px">最終：💧 ${fmtLast(p.lastWaterAt)} / 🧪 ${fmtLast(p.lastFertAt)} / ✂️ ${fmtLast(p.lastPruneAt)}</div>
-    </div>
-
-    <div class="hr"></div>
-
-    <div class="row" style="justify-content:space-between">
-      <button class="btn danger small" id="deletePlant">🧨 削除</button>
-      <button class="btn ghost small" id="editPlant">✏️ 編集</button>
-    </div>
-  `);
-
-  const updatePlant=(patch)=>{
-    const idx = state.plants.findIndex(x=>x.id===id);
-    if(idx<0) return;
-    state.plants[idx] = { ...state.plants[idx], ...patch };
-    saveState();
-    renderPlants(); renderHome(); refreshDiagPlantSelect();
-  };
-
-  $("markWater").onclick=()=>{ updatePlant({lastWaterAt:nowISO()}); openPlantModal(id); };
-  $("markFert").onclick =()=>{ updatePlant({lastFertAt:nowISO()}); openPlantModal(id); };
-  $("markPrune").onclick=()=>{ updatePlant({lastPruneAt:nowISO()}); openPlantModal(id); };
-
-  $("deletePlant").onclick=()=>{
-    if(!confirm("この植物を削除する？（戻せない）")) return;
-    state.plants = state.plants.filter(x=>x.id!==id);
-    saveState();
-    closeModal();
-    renderPlants(); renderHome(); refreshDiagPlantSelect();
-  };
-
-  $("editPlant").onclick=()=>{
-    openModal(`編集：${p.name}`, `
-      <div class="sub">写真の差し替えは「追加」画面で撮り直してから作り直すのが最速。</div>
-      <div class="hr"></div>
-
-      <label>名前</label>
-      <input id="eName" value="${escapeHtml(p.name)}">
-
-      <label>品種</label>
-      <input id="eSpecies" value="${escapeHtml(p.species||"")}">
-
-      <label>置き場所</label>
-      <input id="eLoc" value="${escapeHtml(p.location||"")}">
-
-      <label>水やり周期（日）</label>
-      <input id="eW" type="number" min="0" value="${p.waterEvery||0}">
-
-      <label>肥料周期（日）</label>
-      <input id="eF" type="number" min="0" value="${p.fertEvery||0}">
-
-      <label>剪定周期（日）</label>
-      <input id="eP" type="number" min="0" value="${p.pruneEvery||0}">
-
-      <label>メモ</label>
-      <textarea id="eMemo">${escapeHtml(p.memo||"")}</textarea>
-
-      <div class="row" style="margin-top:12px">
-        <button class="btn" id="eSave">✅ 保存</button>
-        <button class="btn ghost" id="eCancel">キャンセル</button>
-      </div>
-    `);
-    $("eCancel").onclick=()=>openPlantModal(id);
-    $("eSave").onclick=()=>{
-      const nn=$("eName").value.trim();
-      if(!nn){ alert("名前を入れて。"); return; }
-      updatePlant({
-        name:nn,
-        species:$("eSpecies").value.trim(),
-        location:$("eLoc").value.trim(),
-        waterEvery:Number($("eW").value)||0,
-        fertEvery:Number($("eF").value)||0,
-        pruneEvery:Number($("eP").value)||0,
-        memo:$("eMemo").value.trim()
+      // 旧方式（memo本文の[検索メモ...]）→ searchMemosへ移行（searchMemosが空の時だけ）
+      state.plants.forEach(p=>{
+        if((p.searchMemos?.length||0) > 0) return;
+        const blocks = parseSearchMemos(p.memo || "");
+        if(blocks.length === 0) return;
+        p.searchMemos = blocks.map(b=>({
+          id: newId("sm"),
+          createdAt: b.at,
+          query: (b.body||"").replace(/^🔎\s*/, "").trim(),
+          fav: false,
+          done: false
+        }));
       });
-      openPlantModal(id);
-    };
-  };
-}
+    }
+    normalizeState();
 
-/* ===== 診断：入力 ===== */
-function refreshDiagPlantSelect(){
-  const sel = $("diagPlantSelect");
-  sel.innerHTML="";
-  const opt0=document.createElement("option");
-  opt0.value=""; opt0.textContent="（選ばない）";
-  sel.appendChild(opt0);
-  for(const p of state.plants){
-    const opt=document.createElement("option");
-    opt.value=p.id;
-    opt.textContent=p.name;
-    sel.appendChild(opt);
-  }
-}
-refreshDiagPlantSelect();
+    /* ===== Theme ===== */
+    function applyTheme(t){
+      document.documentElement.setAttribute("data-theme", t==="dark"?"dark":"beige");
+      localStorage.setItem(THEME_KEY, t);
+      $("themeBtn").textContent = (t==="dark")?"☀️ ベージュ":"🌙 ダーク";
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if(meta) meta.setAttribute("content", (t==="dark")?"#070b10":"#f4efe6");
+    }
+    applyTheme(localStorage.getItem(THEME_KEY)||"beige");
+    $("themeBtn").addEventListener("click",()=>{
+      const cur = localStorage.getItem(THEME_KEY)||"beige";
+      applyTheme(cur==="dark"?"beige":"dark");
+    });
 
-/* 写真プレビュー（診断） */
-$("diagPhotoInput").addEventListener("change", async ()=>{
-  const f = $("diagPhotoInput").files?.[0];
-  if(!f) return;
-  try{
-    const dataUrl = await compressImageFile(f, 980, 0.82);
-    $("diagPreview").src=dataUrl;
-    $("diagPreview").style.display="";
-    $("diagPreview").dataset.dataurl=dataUrl;
-  }catch{
-    const raw=await fileToDataUrl(f);
-    $("diagPreview").src=raw;
-    $("diagPreview").style.display="";
-    $("diagPreview").dataset.dataurl=raw;
-  }
-});
+    /* ===== View Switch ===== */
+    function showTab(tab){
+      views.forEach(v=>{
+        const el = $("view-"+v);
+        if(el) el.style.display = (v===tab)?"":"none";
+      });
+      document.querySelectorAll(".tab").forEach(el=>{
+        el.classList.toggle("active", el.dataset.tab===tab);
+      });
+      document.querySelectorAll(".navBtn").forEach(el=>{
+        el.classList.toggle("active", el.dataset.tab===tab);
+      });
 
-/* ===== 診断ルール（ルール式 TOP3） ===== */
-function runRuleDiagnosis(symSet, ctx){
-  const scores = [];
-  const add = (key, title, score, why, actions)=>{
-    scores.push({key,title,score,why,actions});
-  };
+      if(tab==="plants") renderPlants();
+      if(tab==="home") renderHome();
+      if(tab==="diag"){ renderDiagLogs(); refreshDiagPlantSelect(); }
+    }
 
-  // 基本スコア
-  if(symSet.has("yellow")){
-    add("overwater","水のやりすぎ", 3, "黄ばみは過湿で出やすい", ["土が乾くまで水を止める","鉢底の排水確認","根腐れなら植え替え"]);
-    add("underlight","日照不足", 2, "光不足でも黄ばみやすい", ["明るい日陰へ移動","急な直射は避ける"]);
-    add("nutrient","栄養不足", 2, "新芽以外が薄くなる", ["薄めの液肥を少量","肥料は頻度より量を控えめ"]);
-  }
-  if(symSet.has("spots")){
-    add("fungus","カビ/病気（斑点）", 3, "斑点は病気・ストレスの典型", ["葉を拭く/切る","風通しUP","過湿を避ける"]);
-    add("sunburn","葉焼け", 2, "強光でシミが出る", ["レース越しに","移動は段階的に"]);
-  }
-  if(symSet.has("wilting")){
-    add("dry","水切れ/乾燥", 3, "しおれは水不足の典型", ["土が乾いていればたっぷり","葉水で湿度UP","根詰まり確認"]);
-    add("rootrot","根腐れ", 3, "過湿でもしおれる", ["土が湿って重いなら水停止","根の状態確認","植え替え検討"]);
-  }
-  if(symSet.has("bugs")){
-    add("pests","害虫（ハダニ/カイガラムシ等）", 4, "ベタつき・虫はほぼ害虫", ["葉裏を洗う/拭く","隔離","必要なら薬剤"]);
-  }
-  if(symSet.has("mold")){
-    add("powdery","うどんこ/カビ", 4, "白い粉はカビの可能性大", ["葉を拭く/切る","風通しUP","水やり控えめ"]);
-  }
-  if(symSet.has("brown")){
-    add("dryair","乾燥/水切れ", 3, "茶枯れは乾燥や水切れ", ["水の見直し","葉水/加湿","直射やエアコン風回避"]);
-    add("salt","肥料焼け", 2, "肥料過多で先が枯れる", ["肥料を止める","一度たっぷり流す"]);
-  }
+    $("tabs").addEventListener("click",(e)=>{
+      const t = e.target.closest(".tab");
+      if(!t) return;
+      showTab(t.dataset.tab);
+    });
+    document.querySelectorAll(".navBtn").forEach(btn=>{
+      btn.addEventListener("click",()=>showTab(btn.dataset.tab));
+    });
 
-  // 文脈補正
-  if(ctx.water==="more"){
-    for(const s of scores){ if(s.key==="overwater"||s.key==="rootrot") s.score+=2; }
-  }
-  if(ctx.water==="less"){
-    for(const s of scores){ if(s.key==="dry") s.score+=2; }
-  }
-  if(ctx.light==="strong"){
-    for(const s of scores){ if(s.key==="sunburn") s.score+=2; }
-  }
-  if(ctx.light==="weak"){
-    for(const s of scores){ if(s.key==="underlight") s.score+=2; }
-  }
-  if(ctx.air==="bad"){
-    for(const s of scores){ if(s.key==="fungus"||s.key==="powdery") s.score+=2; }
-  }
+    /* ===== Bottom Nav Hide ===== */
+    let lastY = window.scrollY;
+    const nav = document.querySelector(".bottomNav");
+    window.addEventListener("scroll",()=>{
+      const y=window.scrollY;
+      const down=y>lastY;
+      if(down && y>24) nav.classList.add("hide");
+      else nav.classList.remove("hide");
+      lastY=y;
+    },{passive:true});
+    function hideNav(ms=1100){
+      nav.classList.add("hide");
+      setTimeout(()=>nav.classList.remove("hide"),ms);
+    }
 
-  // 同点整理
-  scores.sort((a,b)=>b.score-a.score);
-  const top = scores.slice(0,3);
-  return top.length ? top : [{title:"情報不足", score:0, why:"症状が少ない", actions:["症状を追加","写真を撮る","水やり/光/風通しを選ぶ"]}];
-}
+    /* ===== Modal ===== */
+    function openModal(title, html){
+      $("modalTitle").textContent = title;
+      $("modalBody").innerHTML = html;
+      $("modalBack").style.display = "flex";
+    }
+    function closeModal(){ $("modalBack").style.display="none"; }
+    $("closeModal").addEventListener("click", closeModal);
+    $("modalBack").addEventListener("click",(e)=>{ if(e.target.id==="modalBack") closeModal(); });
 
-/* ===== 診断：保存ログ ===== */
-function addDiagLog({plantId, plantName, photoDataUrl, sym, ctx, memo, result}){
-  const log = {
-    id:newId("d"),
-    createdAt: nowISO(),
-    plantId: plantId || "",
-    plantName: plantName || "",
-    photoDataUrl: photoDataUrl || "",
-    sym: Array.from(sym),
-    ctx,
-    memo: memo || "",
-    result
-  };
-  state.diagLogs.unshift(log);
-  state.diagLogs = state.diagLogs.slice(0,50); // 上限
-  saveState();
-}
+    /* ===== Google / Copy ===== */
+    function openGoogle(q){
+      const url = "https://www.google.com/search?q=" + encodeURIComponent(q);
+      window.open(url, "_blank");
+    }
+    function copyText(text){
+      if(navigator.clipboard?.writeText){
+        navigator.clipboard.writeText(text).then(()=>alert("コピーしたよ")).catch(()=>fallbackCopy(text));
+      }else{
+        fallbackCopy(text);
+      }
+    }
+    function fallbackCopy(text){
+      const ta=document.createElement("textarea");
+      ta.value=text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+      alert("コピーしたよ");
+    }
 
-/* ===== 診断：実行 ===== */
-$("runDiag").addEventListener("click", ()=>{
-  const sym = new Set(Array.from(document.querySelectorAll(".sym:checked")).map(x=>x.value));
-  const ctx = {
-    water: $("ctxWater").value,
-    light: $("ctxLight").value,
-    air: $("ctxAir").value
-  };
-  const memo = $("diagMemo").value.trim();
-  const plantId = $("diagPlantSelect").value;
-  const plant = plantId ? state.plants.find(p=>p.id===plantId) : null;
+    /* ===== Add Search Memo to Plant (data + memo text) ===== */
+    function appendSearchMemoToPlant(plantId, query){
+      if(!plantId){ alert("植物を選んでから保存してね（診断の『植物』を選択）"); return; }
+      const idx = state.plants.findIndex(p=>p.id===plantId);
+      if(idx<0){ alert("植物が見つからない"); return; }
 
-  const result = runRuleDiagnosis(sym, ctx);
+      const stamp = new Date().toLocaleString("ja-JP");
+      const q = (query||"").trim();
+      if(!q){ alert("検索文が空"); return; }
 
-  $("diagResult").innerHTML = `
-    <div style="font-weight:999;margin-bottom:8px">原因候補TOP${result.length}</div>
-    ${result.map((r,i)=>`
-      <div class="card soft" style="padding:12px;margin-top:10px">
-        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
-          <div style="font-weight:999">${i+1}. ${escapeHtml(r.title)}</div>
-          <div class="chip ${r.score>=5?'bad':r.score>=3?'warn':'ok'}">スコア ${r.score}</div>
+      const item = { id:newId("sm"), createdAt: stamp, query: q, fav:false, done:false };
+      state.plants[idx].searchMemos = state.plants[idx].searchMemos || [];
+      state.plants[idx].searchMemos.unshift(item);
+
+      const block = `\n\n[検索メモ ${stamp}]\n🔎 ${q}`;
+      state.plants[idx].memo = (state.plants[idx].memo || "") + block;
+
+      saveState();
+      renderPlants(); renderHome(); refreshDiagPlantSelect();
+      alert("植物メモに保存したよ");
+    }
+
+    /* ===== Plant Model ===== */
+    function makePlant({name,species,location,memo,photoDataUrl,waterEvery,fertEvery,pruneEvery}){
+      const now = nowISO();
+      return {
+        id:newId("p"),
+        name, species, location, memo,
+        photoDataUrl: photoDataUrl || "",
+        createdAt: now,
+        waterEvery: Number(waterEvery)||0,
+        fertEvery:  Number(fertEvery)||0,
+        pruneEvery: Number(pruneEvery)||0,
+        lastWaterAt: now,
+        lastFertAt:  now,
+        lastPruneAt: now,
+        searchMemos: []
+      };
+    }
+        /* ===== 60 Presets ===== */
+    const PRESETS = [
+      ["モンステラ","Monstera deliciosa",7,30,90],
+      ["コルジリネ","Cordyline",7,30,90],
+      ["ポトス","Epipremnum aureum",7,30,60],
+      ["サンスベリア","Dracaena trifasciata",14,45,120],
+      ["パキラ","Pachira aquatica",7,30,90],
+      ["フィカス・ウンベラータ","Ficus umbellata",7,30,90],
+      ["フィカス・ベンガレンシス","Ficus benghalensis",7,30,90],
+      ["フィロデンドロン","Philodendron",7,30,90],
+      ["ガジュマル","Ficus microcarpa",7,30,90],
+      ["アンスリウム","Anthurium",7,30,60],
+      ["ストレリチア","Strelitzia",7,30,90],
+      ["ドラセナ","Dracaena",10,30,120],
+      ["アロカシア","Alocasia",7,30,60],
+      ["カラテア","Calathea",7,30,60],
+      ["オリーブ","Olea europaea",10,45,120],
+      ["ローズマリー","Rosmarinus",7,45,120],
+      ["ラベンダー","Lavandula",7,45,120],
+      ["バジル","Ocimum basilicum",3,21,30],
+      ["ミント","Mentha",3,21,30],
+      ["アイビー","Hedera",7,30,90],
+      ["シダ","Fern",7,30,90],
+      ["クワズイモ","Alocasia odora",7,30,90],
+      ["シンゴニウム","Syngonium",7,30,60],
+      ["アグラオネマ","Aglaonema",7,30,90],
+      ["ホヤ","Hoya",10,30,90],
+      ["カポック","Schefflera",7,30,90],
+      ["ユッカ","Yucca",14,45,120],
+      ["ディフェンバキア","Dieffenbachia",7,30,60],
+      ["エバーフレッシュ","Albizia julibrissin",7,30,90],
+      ["トックリラン","Beaucarnea",14,45,120],
+      ["ベゴニア","Begonia",7,30,60],
+      ["セローム","Philodendron selloum",7,30,90],
+      ["アロエ","Aloe",14,45,120],
+      ["エケベリア","Echeveria",14,45,120],
+      ["ハオルチア","Haworthia",14,45,120],
+      ["カランコエ","Kalanchoe",10,30,60],
+      ["クッカバラ","Philodendron xanadu",7,30,90],
+      ["モンステラ・アダンソニー","Monstera adansonii",7,30,90],
+      ["グズマニア","Guzmania",7,30,60],
+      ["エアプランツ","Tillandsia",5,30,90],
+      ["ブーゲンビリア","Bougainvillea",7,45,120],
+      ["シマトネリコ","Fraxinus griffithii",7,30,120],
+      ["レモン","Citrus limon",7,45,120],
+      ["アボカド","Persea americana",7,45,120],
+      ["サボテン","Cactus",14,45,180],
+      ["柱サボテン","Cereus",14,45,180],
+      ["ゴムの木","Ficus elastica",7,30,90],
+      ["ベンジャミン","Ficus benjamina",7,30,90],
+      ["パンダガジュマル","Ficus microcarpa panda",7,30,90],
+      ["ペペロミア","Peperomia",7,30,90],
+      ["スパティフィラム","Spathiphyllum",7,30,60],
+      ["リプサリス","Rhipsalis",7,30,90],
+      ["ネフロレピス","Nephrolepis",7,30,60],
+      ["アレカヤシ","Dypsis lutescens",7,30,90],
+      ["チャメドレア","Chamaedorea",7,30,90],
+      ["テーブルヤシ","Chamaedorea elegans",7,30,90],
+      ["ポリシャス","Polyscias",7,30,90],
+      ["クルシア","Clusia",7,30,90],
+      ["セダム","Sedum",10,30,120]
+    ];
+
+    function initPresets(){
+      const sel = $("presetSelect");
+      sel.innerHTML="";
+      PRESETS.forEach((p,i)=>{
+        const opt=document.createElement("option");
+        opt.value=i;
+        opt.textContent=p[0];
+        sel.appendChild(opt);
+      });
+    }
+
+    function presetToForm(idx){
+      const p = PRESETS[idx];
+      if(!p) return;
+      $("nameInput").value = p[0];
+      $("speciesInput").value = p[1];
+      $("waterEvery").value = String(p[2]);
+      $("fertEvery").value  = String(p[3]);
+      $("pruneEvery").value = String(p[4]);
+    }
+
+    /* ===== Camera entry ===== */
+    $("nav-add").addEventListener("click", ()=>{
+      showTab("add");
+      openAddCamera();
+    });
+    function openAddCamera(){
+      hideNav(1300);
+      setTimeout(()=> $("photoInput").click(), 80);
+    }
+
+    /* ===== Home buttons ===== */
+    $("homeAddBtn").addEventListener("click", ()=>{ showTab("add"); openAddCamera(); });
+    $("homePresetBtn").addEventListener("click", ()=>{ showTab("add"); $("presetSelect").focus(); });
+    $("homePlantsBtn").addEventListener("click", ()=> showTab("plants"));
+    $("homeGoDiag").addEventListener("click", ()=> showTab("diag"));
+
+    /* ===== Plants buttons ===== */
+    $("plantsAddBtn").addEventListener("click", ()=>{ showTab("add"); openAddCamera(); });
+    $("plantsPresetBtn").addEventListener("click", ()=>{ showTab("add"); $("presetSelect").focus(); });
+
+    /* ===== Preset actions ===== */
+    $("presetFillBtn").addEventListener("click", ()=>{
+      presetToForm(parseInt($("presetSelect").value,10)||0);
+      alert("入力欄に反映したよ。写真を撮って『追加する』が最速。");
+    });
+    $("presetQuickAddBtn").addEventListener("click", ()=>{
+      const idx = parseInt($("presetSelect").value,10)||0;
+      const p = PRESETS[idx];
+      if(!p) return;
+      const plant = makePlant({
+        name:p[0], species:p[1], location:"", memo:"",
+        waterEvery:p[2], fertEvery:p[3], pruneEvery:p[4],
+        photoDataUrl:""
+      });
+      state.plants.unshift(plant);
+      saveState();
+      renderPlants(); renderHome(); refreshDiagPlantSelect();
+      alert("追加したよ（写真なし）。あとで写真を撮って更新もできる。");
+      showTab("plants");
+    });
+
+    /* ===== Add form photo ===== */
+    $("photoInput").addEventListener("change", async ()=>{
+      const f = $("photoInput").files?.[0];
+      if(!f) return;
+      try{
+        const dataUrl = await compressImageFile(f, 980, 0.82);
+        $("photoPreview").src = dataUrl;
+        $("photoPreview").style.display = "";
+        $("photoPreview").dataset.dataurl = dataUrl;
+      }catch{
+        const raw = await fileToDataUrl(f);
+        $("photoPreview").src = raw;
+        $("photoPreview").style.display = "";
+        $("photoPreview").dataset.dataurl = raw;
+      }
+    });
+
+    $("resetAdd").addEventListener("click", ()=>{
+      $("photoInput").value="";
+      $("photoPreview").style.display="none";
+      $("photoPreview").src="";
+      $("photoPreview").dataset.dataurl="";
+      $("nameInput").value="";
+      $("speciesInput").value="";
+      $("locInput").value="";
+      $("waterEvery").value="7";
+      $("fertEvery").value="30";
+      $("pruneEvery").value="90";
+      $("memoInput").value="";
+    });
+
+    $("savePlant").addEventListener("click", async ()=>{
+      const name = $("nameInput").value.trim();
+      if(!name){ alert("名前を入れて。"); return; }
+
+      const btn = $("savePlant");
+      const prev = btn.textContent;
+      btn.textContent="保存中…"; btn.disabled=true;
+
+      const plant = makePlant({
+        name,
+        species: $("speciesInput").value.trim(),
+        location:$("locInput").value.trim(),
+        memo:$("memoInput").value.trim(),
+        waterEvery:$("waterEvery").value,
+        fertEvery:$("fertEvery").value,
+        pruneEvery:$("pruneEvery").value,
+        photoDataUrl:$("photoPreview").dataset.dataurl || ""
+      });
+
+      state.plants.unshift(plant);
+      saveState();
+
+      btn.textContent=prev; btn.disabled=false;
+      $("resetAdd").click();
+
+      renderPlants(); renderHome(); refreshDiagPlantSelect();
+      showTab("plants");
+    });
+
+    /* ===== Tasks ===== */
+    function computeDueTasks(daysWindow){
+      const today = toDateOnly(new Date());
+      const until = addDays(today, daysWindow);
+      const tasks=[];
+      for(const p of state.plants){
+        const items=[
+          {kind:"water", label:"💧 水やり", every:p.waterEvery||0, last:p.lastWaterAt||p.createdAt},
+          {kind:"fert",  label:"🧪 肥料",   every:p.fertEvery||0,  last:p.lastFertAt||p.createdAt},
+          {kind:"prune", label:"✂️ 剪定",   every:p.pruneEvery||0, last:p.lastPruneAt||p.createdAt},
+        ];
+        for(const it of items){
+          if(!it.every || it.every<=0) continue;
+          const base = toDateOnly(new Date(it.last));
+          const due = addDays(base, it.every);
+          if(due>=today && due<=until){
+            tasks.push({ plantId:p.id, plantName:p.name, kind:it.kind, label:it.label, due });
+          }
+        }
+      }
+      tasks.sort((a,b)=>a.due-b.due);
+      return tasks;
+    }
+
+    function markTaskDone(plantId, kind){
+      const idx = state.plants.findIndex(x=>x.id===plantId);
+      if(idx<0) return;
+      const now = nowISO();
+      const p = state.plants[idx];
+      if(kind==="water") p.lastWaterAt=now;
+      if(kind==="fert")  p.lastFertAt=now;
+      if(kind==="prune") p.lastPruneAt=now;
+      state.plants[idx]=p;
+      saveState();
+    }
+
+    /* ===== Render: Plants ===== */
+    function renderPlants(){
+      const grid = $("plantGrid");
+      grid.innerHTML="";
+      if(state.plants.length===0){
+        $("plantEmpty").style.display="";
+        return;
+      }
+      $("plantEmpty").style.display="none";
+
+      for(const p of state.plants){
+        const card=document.createElement("div");
+        card.className="plantCard";
+        const thumb = p.photoDataUrl || "";
+        const hasFav = Array.isArray(p.searchMemos) && p.searchMemos.some(x=>x.fav);
+        const badge = hasFav
+          ? "⭐ お気に入りあり"
+          : (p.location ? escapeHtml(p.location) : (p.species ? escapeHtml(p.species) : "登録済"));
+
+        card.innerHTML=`
+          <div class="thumb">
+            ${thumb? `<img src="${thumb}" alt="">` : ``}
+            <div class="badge">${badge}</div>
+          </div>
+          <div class="plantBody">
+            <div class="plantName">${escapeHtml(p.name)}</div>
+            <div class="plantMeta">${escapeHtml(p.memo || "メモなし")}</div>
+          </div>`;
+        card.addEventListener("click",()=>openPlantModal(p.id));
+        grid.appendChild(card);
+      }
+    }
+
+    /* ===== Plant Detail Modal ===== */
+    function openPlantModal(id){
+      const p = state.plants.find(x=>x.id===id);
+      if(!p) return;
+
+      let showFavOnly = false;
+
+      const img = p.photoDataUrl ? `<img class="modalImg" src="${p.photoDataUrl}" alt="">` : "";
+      const fmtLast = (iso)=> iso ? fmtMD(iso) : "—";
+
+      openModal(`詳細：${p.name}`, `
+        ${img}
+        <div class="hr"></div>
+
+        <div class="row" style="gap:10px">
+          <button class="btn small" id="markWater">💧 水やり</button>
+          <button class="btn ghost small" id="markFert">🧪 肥料</button>
+          <button class="btn ghost small" id="markPrune">✂️ 剪定</button>
         </div>
-        <div class="tiny" style="margin-top:6px">${escapeHtml(r.why||"")}</div>
-        <div class="tiny" style="margin-top:8px"><b>対処</b>：${escapeHtml((r.actions||[]).join(" / "))}</div>
-      </div>
-    `).join("")}
-    <div class="hr"></div>
-    <div class="tiny">※これはルール式。正確性を上げるなら次でAI化できる。</div>
-  `;
 
-  const photo = $("diagPreview").dataset.dataurl || "";
-  addDiagLog({
-    plantId,
-    plantName: plant ? plant.name : "",
-    photoDataUrl: photo,
-    sym,
-    ctx,
-    memo,
-    result
-  });
+        <div class="hr"></div>
 
-  renderDiagLogs();
-  renderHomeDiag();
-});
-$("resetDiag").addEventListener("click", ()=>{
-  $("diagPhotoInput").value="";
-  $("diagPreview").style.display="none";
-  $("diagPreview").src="";
-  $("diagPreview").dataset.dataurl="";
-  $("diagPlantSelect").value="";
-  document.querySelectorAll(".sym").forEach(x=>x.checked=false);
-  $("ctxWater").value="unknown";
-  $("ctxLight").value="unknown";
-  $("ctxAir").value="unknown";
-  $("diagMemo").value="";
-  $("diagResult").textContent="まだ判定してない。";
-});
-$("clearDiagLogs").addEventListener("click", ()=>{
-  if(!confirm("診断ログを全部消す？")) return;
-  state.diagLogs=[];
-  saveState();
-  renderDiagLogs();
-  renderHomeDiag();
-});
+        <div class="sub"><b>品種</b><br>${escapeHtml(p.species || "—")}</div>
+        <div class="hr"></div>
+        <div class="sub"><b>置き場所</b><br>${escapeHtml(p.location || "—")}</div>
+        <div class="hr"></div>
+        <div class="sub"><b>メモ</b><br>${escapeHtml(p.memo || "—")}</div>
 
-/* ===== 診断ログ表示 ===== */
-function renderDiagLogs(){
-  const list = $("diagLogList");
-  list.innerHTML="";
-  if(state.diagLogs.length===0){
-    $("diagLogEmpty").style.display="";
-    return;
-  }
-  $("diagLogEmpty").style.display="none";
+        <div class="hr"></div>
 
-  state.diagLogs.slice(0,12).forEach(log=>{
-    const el=document.createElement("div");
-    el.className="card soft";
-    el.style.padding="12px";
-    const t = new Date(log.createdAt);
-    const head = `${fmtMD(t)} ${fmtHM(t)}${log.plantName?` / ${log.plantName}`:""}`;
-    const top = (log.result && log.result[0]) ? log.result[0].title : "—";
-    el.innerHTML=`
-      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
-        <div>
-          <div style="font-weight:999">${escapeHtml(head)}</div>
-          <div class="tiny" style="margin-top:4px">TOP：${escapeHtml(top)}</div>
+        <div class="card soft" style="padding:12px">
+          <div style="font-weight:999;margin-bottom:6px">周期</div>
+          <div class="sub">💧 ${p.waterEvery||0}日 / 🧪 ${p.fertEvery||0}日 / ✂️ ${p.pruneEvery||0}日</div>
+          <div class="tiny" style="margin-top:6px">最終：💧 ${fmtLast(p.lastWaterAt)} / 🧪 ${fmtLast(p.lastFertAt)} / ✂️ ${fmtLast(p.lastPruneAt)}</div>
         </div>
-        <button class="btn ghost small">詳細</button>
-      </div>
-    `;
-    el.querySelector("button").onclick=()=>openDiagModal(log.id);
-    list.appendChild(el);
-  });
-}
 
-function renderHomeDiag(){
-  const list = $("homeDiagList");
-  list.innerHTML="";
-  const logs = state.diagLogs.slice(0,3);
-  if(logs.length===0){
-    $("homeDiagEmpty").style.display="";
-    return;
-  }
-  $("homeDiagEmpty").style.display="none";
+        <div class="hr"></div>
 
-  logs.forEach(log=>{
-    const t = new Date(log.createdAt);
-    const head = `${fmtMD(t)} ${fmtHM(t)}${log.plantName?` / ${log.plantName}`:""}`;
-    const top = (log.result && log.result[0]) ? log.result[0].title : "—";
-    const el=document.createElement("div");
-    el.className="card soft";
-    el.style.padding="12px";
-    el.innerHTML=`
-      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
-        <div>
-          <div style="font-weight:999">${escapeHtml(head)}</div>
-          <div class="tiny" style="margin-top:4px">TOP：${escapeHtml(top)}</div>
+        <div class="card soft" style="padding:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+            <div style="font-weight:999">🔎 検索メモ</div>
+            <div class="row" style="gap:8px">
+              <button class="btn ghost small" id="filterFavBtn">⭐ お気に入りのみ</button>
+              <button class="btn ghost small" id="clearSearchMemo">🧹 全消し</button>
+            </div>
+          </div>
+          <div class="tiny" style="margin-top:6px">診断から保存した“検索キーワード”が溜まる。</div>
+          <div id="searchMemoList" style="display:grid;gap:10px;margin-top:10px"></div>
+          <div class="tiny" id="searchMemoEmpty" style="margin-top:10px;display:none">検索メモ：まだなし</div>
         </div>
-        <button class="btn ghost small">見る</button>
-      </div>
-    `;
-    el.querySelector("button").onclick=()=>{ showTab("diag"); openDiagModal(log.id); };
-    list.appendChild(el);
-  });
-}
 
-function openDiagModal(id){
-  const log = state.diagLogs.find(x=>x.id===id);
-  if(!log) return;
-  const img = log.photoDataUrl ? `<img class="modalImg" src="${log.photoDataUrl}" alt="">` : "";
-  const t = new Date(log.createdAt);
-  const head = `${fmtMD(t)} ${fmtHM(t)}${log.plantName?` / ${log.plantName}`:""}`;
-  const symTxt = (log.sym||[]).join(" / ") || "（未選択）";
-  const ctxTxt = `水:${log.ctx?.water||"unknown"} 光:${log.ctx?.light||"unknown"} 風:${log.ctx?.air||"unknown"}`;
-  openModal("診断ログ", `
-    ${img}
-    <div class="hr"></div>
-    <div style="font-weight:999">${escapeHtml(head)}</div>
-    <div class="tiny" style="margin-top:6px">症状：${escapeHtml(symTxt)}</div>
-    <div class="tiny" style="margin-top:6px">状況：${escapeHtml(ctxTxt)}</div>
-    ${log.memo? `<div class="hr"></div><div class="tiny"><b>メモ</b><br>${escapeHtml(log.memo)}</div>`:""}
-    <div class="hr"></div>
-    <div style="font-weight:999;margin-bottom:6px">結果</div>
-    ${(log.result||[]).map((r,i)=>`
-      <div class="card soft" style="padding:12px;margin-top:10px">
-        <div style="font-weight:999">${i+1}. ${escapeHtml(r.title||"")}</div>
-        <div class="tiny" style="margin-top:6px">${escapeHtml(r.why||"")}</div>
-        <div class="tiny" style="margin-top:8px"><b>対処</b>：${escapeHtml((r.actions||[]).join(" / "))}</div>
-      </div>
-    `).join("")}
-    <div class="hr"></div>
-    <div class="row" style="justify-content:space-between">
-      <button class="btn danger small" id="delLog">🧨 このログ削除</button>
-      <button class="btn ghost small" id="closeLog">閉じる</button>
-    </div>
-  `);
-  $("closeLog").onclick=closeModal;
-  $("delLog").onclick=()=>{
-    if(!confirm("このログを削除する？")) return;
-    state.diagLogs = state.diagLogs.filter(x=>x.id!==id);
-    saveState();
-    closeModal();
+        <div class="hr"></div>
+
+        <div class="row" style="justify-content:space-between">
+          <button class="btn danger small" id="deletePlant">🧨 削除</button>
+          <button class="btn ghost small" id="editPlant">✏️ 編集</button>
+        </div>
+      `);
+
+      const updatePlant=(patch)=>{
+        const idx = state.plants.findIndex(x=>x.id===id);
+        if(idx<0) return;
+        state.plants[idx] = { ...state.plants[idx], ...patch };
+        saveState();
+        renderPlants(); renderHome(); refreshDiagPlantSelect();
+      };
+
+      $("markWater").onclick=()=>{ updatePlant({lastWaterAt:nowISO()}); openPlantModal(id); };
+      $("markFert").onclick =()=>{ updatePlant({lastFertAt:nowISO()}); openPlantModal(id); };
+      $("markPrune").onclick=()=>{ updatePlant({lastPruneAt:nowISO()}); openPlantModal(id); };
+
+      $("deletePlant").onclick=()=>{
+        if(!confirm("この植物を削除する？（戻せない）")) return;
+        state.plants = state.plants.filter(x=>x.id!==id);
+        saveState();
+        closeModal();
+        renderPlants(); renderHome(); refreshDiagPlantSelect();
+      };
+
+      $("editPlant").onclick=()=>{
+        openModal(`編集：${p.name}`, `
+          <div class="tiny">写真の差し替えは「追加」画面で撮り直すのが最速。</div>
+          <div class="hr"></div>
+
+          <label>名前</label>
+          <input id="eName" value="${escapeHtml(p.name)}">
+
+          <label>品種</label>
+          <input id="eSpecies" value="${escapeHtml(p.species||"")}">
+
+          <label>置き場所</label>
+          <input id="eLoc" value="${escapeHtml(p.location||"")}">
+
+          <label>水やり周期（日）</label>
+          <input id="eW" type="number" min="0" value="${p.waterEvery||0}">
+
+          <label>肥料周期（日）</label>
+          <input id="eF" type="number" min="0" value="${p.fertEvery||0}">
+
+          <label>剪定周期（日）</label>
+          <input id="eP" type="number" min="0" value="${p.pruneEvery||0}">
+
+          <label>メモ</label>
+          <textarea id="eMemo">${escapeHtml(p.memo||"")}</textarea>
+
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="eSave">✅ 保存</button>
+            <button class="btn ghost" id="eCancel">キャンセル</button>
+          </div>
+        `);
+        $("eCancel").onclick=()=>openPlantModal(id);
+        $("eSave").onclick=()=>{
+          const nn=$("eName").value.trim();
+          if(!nn){ alert("名前を入れて。"); return; }
+          updatePlant({
+            name:nn,
+            species:$("eSpecies").value.trim(),
+            location:$("eLoc").value.trim(),
+            waterEvery:Number($("eW").value)||0,
+            fertEvery:Number($("eF").value)||0,
+            pruneEvery:Number($("eP").value)||0,
+            memo:$("eMemo").value.trim()
+          });
+          openPlantModal(id);
+        };
+      };
+
+      function renderSearchMemo(){
+        const list = $("searchMemoList");
+        const empty = $("searchMemoEmpty");
+        if(!list || !empty) return;
+
+        // filter state stored in closure via attribute toggle
+        const isFavOnly = list.dataset.favOnly === "1";
+
+        let items = Array.isArray(p.searchMemos) ? p.searchMemos : [];
+        if(isFavOnly){
+          items = items.filter(x=>x.fav);
+        }
+
+        list.innerHTML="";
+
+        if(items.length===0){
+          empty.style.display="";
+        }else{
+          empty.style.display="none";
+          items.slice(0,12).forEach((m)=>{
+            const el=document.createElement("div");
+            el.className="card soft";
+            el.style.padding="12px";
+            el.innerHTML=`
+              <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
+                <div style="flex:1">
+                  <div style="font-weight:999;opacity:${m.done?0.55:1};text-decoration:${m.done?"line-through":"none"}">
+                    ${escapeHtml(m.query)}
+                  </div>
+                  <div class="tiny" style="margin-top:6px">${escapeHtml(m.createdAt||"")}</div>
+                  <div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap">
+                    <span class="chip ${m.fav?'ok':''}">${m.fav?'⭐ お気に入り':'☆ 未お気に入り'}</span>
+                    <span class="chip ${m.done?'warn':''}">${m.done?'✅ 解決済み':'⬜ 未解決'}</span>
+                  </div>
+                </div>
+                <div class="row" style="gap:8px;flex-wrap:wrap;justify-content:flex-end">
+                  <button class="btn ghost small" data-act="fav">${m.fav?'⭐':'☆'}</button>
+                  <button class="btn ghost small" data-act="done">${m.done?'↩︎':'✅'}</button>
+                  <button class="btn ghost small" data-act="g">Google</button>
+                  <button class="btn ghost small" data-act="c">コピー</button>
+                  <button class="btn danger small" data-act="del">🗑️</button>
+                </div>
+              </div>
+            `;
+
+            const getIdx = ()=>{
+              const pi = state.plants.findIndex(x=>x.id===p.id);
+              if(pi<0) return {pi:-1, mi:-1};
+              const mi = (state.plants[pi].searchMemos||[]).findIndex(x=>x.id===m.id);
+              return {pi, mi};
+            };
+
+            el.querySelector('[data-act="g"]').onclick = ()=> openGoogle(m.query);
+            el.querySelector('[data-act="c"]').onclick = ()=> copyText(m.query);
+
+            el.querySelector('[data-act="fav"]').onclick = ()=>{
+              const {pi, mi} = getIdx(); if(pi<0||mi<0) return;
+              state.plants[pi].searchMemos[mi].fav = !state.plants[pi].searchMemos[mi].fav;
+              saveState(); openPlantModal(p.id);
+            };
+            el.querySelector('[data-act="done"]').onclick = ()=>{
+              const {pi, mi} = getIdx(); if(pi<0||mi<0) return;
+              state.plants[pi].searchMemos[mi].done = !state.plants[pi].searchMemos[mi].done;
+              saveState(); openPlantModal(p.id);
+            };
+            el.querySelector('[data-act="del"]').onclick = ()=>{
+              if(!confirm("この検索メモを削除する？")) return;
+              const {pi, mi} = getIdx(); if(pi<0||mi<0) return;
+              state.plants[pi].searchMemos.splice(mi,1);
+              saveState(); openPlantModal(p.id);
+            };
+
+            list.appendChild(el);
+          });
+        }
+
+        const filterBtn = $("filterFavBtn");
+        if(filterBtn){
+          filterBtn.textContent = (list.dataset.favOnly==="1") ? "⭐ すべて表示" : "⭐ お気に入りのみ";
+          filterBtn.onclick = ()=>{
+            list.dataset.favOnly = (list.dataset.favOnly==="1") ? "0" : "1";
+            renderSearchMemo();
+          };
+        }
+
+        const clearBtn = $("clearSearchMemo");
+        if(clearBtn){
+          clearBtn.onclick = ()=>{
+            if(!confirm("この植物の検索メモを全部消す？")) return;
+            const pi = state.plants.findIndex(x=>x.id===p.id);
+            if(pi<0) return;
+            state.plants[pi].searchMemos = [];
+            saveState();
+            openPlantModal(p.id);
+          };
+        }
+      }
+      renderSearchMemo();
+    }
+
+    /* ===== Render: Home XP + Fav + Tasks + Diag ===== */
+    function renderXP(){
+      const bar = $("xpBar");
+      const txt = $("xpText");
+      if(!bar || !txt) return;
+
+      let count = 0;
+      state.plants.forEach(p=>{
+        (p.searchMemos||[]).forEach(m=>{ if(m.fav) count++; });
+      });
+
+      const level = Math.floor(count / 5);
+      const progress = (count % 5) / 5 * 100;
+
+      bar.style.width = progress + "%";
+      txt.textContent = `⭐ ${count} 件 / Lv.${level}（5個でLv+1）`;
+    }
+
+    function renderHomeFav(){
+      const list = $("homeFavList");
+      const empty = $("homeFavEmpty");
+      if(!list || !empty) return;
+
+      list.innerHTML="";
+
+      const favs=[];
+      state.plants.forEach(p=>{
+        (p.searchMemos||[]).forEach(m=>{
+          if(m.fav){
+            favs.push({ plantId:p.id, plant:p.name, query:m.query, createdAt:m.createdAt });
+          }
+        });
+      });
+
+      favs.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt));
+      const recent = favs.slice(0,5);
+
+      if(recent.length===0){
+        empty.style.display="";
+        return;
+      }
+      empty.style.display="none";
+
+      recent.forEach(f=>{
+        const el=document.createElement("div");
+        el.className="card soft";
+        el.style.padding="12px";
+        el.innerHTML=`
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+            <div>
+              <div style="font-weight:999">${escapeHtml(f.query)}</div>
+              <div class="tiny" style="margin-top:6px">${escapeHtml(f.plant)}</div>
+            </div>
+            <div class="row" style="gap:8px">
+              <button class="btn ghost small" data-act="g">Google</button>
+              <button class="btn ghost small" data-act="p">植物</button>
+            </div>
+          </div>
+        `;
+        el.querySelector('[data-act="g"]').onclick=()=>openGoogle(f.query);
+        el.querySelector('[data-act="p"]').onclick=()=>openPlantModal(f.plantId);
+        list.appendChild(el);
+      });
+    }
+
+    function renderHome(){
+      $("countPill").textContent = String(state.plants.length);
+
+      const days = parseInt($("daysWindow").value||"3",10) || 3;
+      const tasks = computeDueTasks(days);
+      const list = $("taskList");
+      list.innerHTML="";
+
+      const empty = $("taskEmpty");
+      if(tasks.length===0){
+        empty.style.display="";
+      }else{
+        empty.style.display="none";
+        const today = toDateOnly(new Date());
+        for(const t of tasks){
+          const diff = Math.round((toDateOnly(t.due)-today)/(1000*60*60*24));
+          const tag = diff===0 ? "今日" : diff===1 ? "明日" : `あと${diff}日`;
+          const el = document.createElement("div");
+          el.className="card soft";
+          el.style.padding="12px";
+          el.innerHTML = `
+            <div style="display:flex;gap:12px;align-items:center;justify-content:space-between">
+              <div>
+                <div style="font-weight:999">${escapeHtml(t.plantName)} に ${escapeHtml(t.label)}</div>
+                <div class="tiny" style="margin-top:4px">期限：${fmtMD(t.due)}（${tag}）</div>
+              </div>
+              <div class="row" style="gap:8px">
+                <button class="btn ghost small" data-act="detail">詳細</button>
+                <button class="btn small" data-act="done">完了</button>
+              </div>
+            </div>`;
+          el.querySelector('[data-act="detail"]').onclick=()=>openPlantModal(t.plantId);
+          el.querySelector('[data-act="done"]').onclick=()=>{
+            markTaskDone(t.plantId, t.kind);
+            renderHome();
+          };
+          list.appendChild(el);
+        }
+      }
+
+      renderHomeDiag();
+      renderHomeFav();
+      renderXP();
+    }
+    $("daysWindow").addEventListener("change", renderHome);
+
+    /* ===== Diagnosis: plant select ===== */
+    function refreshDiagPlantSelect(){
+      const sel = $("diagPlantSelect");
+      sel.innerHTML="";
+      const opt0=document.createElement("option");
+      opt0.value=""; opt0.textContent="（選ばない）";
+      sel.appendChild(opt0);
+      for(const p of state.plants){
+        const opt=document.createElement("option");
+        opt.value=p.id;
+        opt.textContent=p.name;
+        sel.appendChild(opt);
+      }
+    }
+
+    /* ===== Diagnosis: photo preview ===== */
+    $("diagPhotoInput").addEventListener("change", async ()=>{
+      const f = $("diagPhotoInput").files?.[0];
+      if(!f) return;
+      try{
+        const dataUrl = await compressImageFile(f, 980, 0.82);
+        $("diagPreview").src=dataUrl;
+        $("diagPreview").style.display="";
+        $("diagPreview").dataset.dataurl=dataUrl;
+      }catch{
+        const raw=await fileToDataUrl(f);
+        $("diagPreview").src=raw;
+        $("diagPreview").style.display="";
+        $("diagPreview").dataset.dataurl=raw;
+      }
+    });
+
+    /* ===== Diagnosis Rules ===== */
+    function runRuleDiagnosis(symSet, ctx){
+      const scores = [];
+      const add = (key, title, score, why, actions)=>scores.push({key,title,score,why,actions});
+
+      if(symSet.has("yellow")){
+        add("overwater","水のやりすぎ", 3, "黄ばみは過湿で出やすい", ["土が乾くまで水を止める","鉢底の排水確認","根腐れなら植え替え"]);
+        add("underlight","日照不足", 2, "光不足でも黄ばみやすい", ["明るい日陰へ移動","急な直射は避ける"]);
+        add("nutrient","栄養不足", 2, "新芽以外が薄くなる", ["薄めの液肥を少量","肥料は頻度より量を控えめ"]);
+      }
+      if(symSet.has("spots")){
+        add("fungus","カビ/病気（斑点）", 3, "斑点は病気・ストレスの典型", ["葉を拭く/切る","風通しUP","過湿を避ける"]);
+        add("sunburn","葉焼け", 2, "強光でシミが出る", ["レース越しに","移動は段階的に"]);
+      }
+      if(symSet.has("wilting")){
+        add("dry","水切れ/乾燥", 3, "しおれは水不足の典型", ["土が乾いていればたっぷり","葉水で湿度UP","根詰まり確認"]);
+        add("rootrot","根腐れ", 3, "過湿でもしおれる", ["土が湿って重いなら水停止","根の状態確認","植え替え検討"]);
+      }
+      if(symSet.has("bugs")){
+        add("pests","害虫（ハダニ/カイガラムシ等）", 4, "ベタつき・虫はほぼ害虫", ["葉裏を洗う/拭く","隔離","必要なら薬剤"]);
+      }
+      if(symSet.has("mold")){
+        add("powdery","うどんこ/カビ", 4, "白い粉はカビの可能性大", ["葉を拭く/切る","風通しUP","水やり控えめ"]);
+      }
+      if(symSet.has("brown")){
+        add("dryair","乾燥/水切れ", 3, "茶枯れは乾燥や水切れ", ["水の見直し","葉水/加湿","直射やエアコン風回避"]);
+        add("salt","肥料焼け", 2, "肥料過多で先が枯れる", ["肥料を止める","一度たっぷり流す"]);
+      }
+
+      if(ctx.water==="more"){
+        for(const s of scores){ if(s.key==="overwater"||s.key==="rootrot") s.score+=2; }
+      }
+      if(ctx.water==="less"){
+        for(const s of scores){ if(s.key==="dry") s.score+=2; }
+      }
+      if(ctx.light==="strong"){
+        for(const s of scores){ if(s.key==="sunburn") s.score+=2; }
+      }
+      if(ctx.light==="weak"){
+        for(const s of scores){ if(s.key==="underlight") s.score+=2; }
+      }
+      if(ctx.air==="bad"){
+        for(const s of scores){ if(s.key==="fungus"||s.key==="powdery") s.score+=2; }
+      }
+
+      scores.sort((a,b)=>b.score-a.score);
+      const top = scores.slice(0,3);
+      return top.length ? top : [{title:"情報不足", score:0, why:"症状が少ない", actions:["症状を追加","写真を撮る","水やり/光/風通しを選ぶ"]}];
+    }
+
+    /* ===== Diagnosis Logs ===== */
+    function addDiagLog({plantId, plantName, photoDataUrl, sym, ctx, memo, result}){
+      const log = {
+        id:newId("d"),
+        createdAt: nowISO(),
+        plantId: plantId || "",
+        plantName: plantName || "",
+        photoDataUrl: photoDataUrl || "",
+        sym: Array.from(sym),
+        ctx,
+        memo: memo || "",
+        result
+      };
+      state.diagLogs.unshift(log);
+      state.diagLogs = state.diagLogs.slice(0,60);
+      saveState();
+    }
+
+    $("runDiag").addEventListener("click", ()=>{
+      const sym = new Set(Array.from(document.querySelectorAll(".sym:checked")).map(x=>x.value));
+      const ctx = { water: $("ctxWater").value, light: $("ctxLight").value, air: $("ctxAir").value };
+      const memo = $("diagMemo").value.trim();
+      const plantId = $("diagPlantSelect").value;
+      const plant = plantId ? state.plants.find(p=>p.id===plantId) : null;
+      const plantNameForQ = plant ? plant.name : "植物";
+
+      const result = runRuleDiagnosis(sym, ctx);
+
+      $("diagResult").innerHTML = `
+        <div style="font-weight:999;margin-bottom:8px">原因候補TOP${result.length}</div>
+        ${result.map((r,i)=>`
+          <div class="card soft" style="padding:12px;margin-top:10px">
+            <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+              <div style="font-weight:999">${i+1}. ${escapeHtml(r.title)}</div>
+              <div class="chip ${r.score>=5?'bad':r.score>=3?'warn':'ok'}">スコア ${r.score}</div>
+            </div>
+            <div class="tiny" style="margin-top:6px">${escapeHtml(r.why||"")}</div>
+            <div class="tiny" style="margin-top:8px"><b>対処</b>：${escapeHtml((r.actions||[]).join(" / "))}</div>
+
+            <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn ghost small" data-act="google" data-q="${encodeURIComponent(plantNameForQ + ' ' + r.title + ' 原因 対処')}">🔎 Google</button>
+              <button class="btn ghost small" data-act="copy" data-q="${encodeURIComponent(plantNameForQ + ' ' + r.title + ' 原因 対処')}">📋 検索文コピー</button>
+              <button class="btn small" data-act="save" data-q="${encodeURIComponent(plantNameForQ + ' ' + r.title + ' 原因 対処')}" data-plant="${plantId}" ${plantId ? "" : "disabled"} style="${plantId ? "" : "opacity:.55"}">📝 植物メモへ</button>
+            </div>
+          </div>
+        `).join("")}
+        <div class="hr"></div>
+        <div class="tiny">※これはルール式。正確性を上げるなら次でAI化できる。</div>
+      `;
+
+      document.querySelectorAll("#diagResult [data-act='google']").forEach(b=>{
+        b.onclick=()=>openGoogle(decodeURIComponent(b.dataset.q));
+      });
+      document.querySelectorAll("#diagResult [data-act='copy']").forEach(b=>{
+        b.onclick=()=>copyText(decodeURIComponent(b.dataset.q));
+      });
+      document.querySelectorAll("#diagResult [data-act='save']").forEach(b=>{
+        b.onclick=()=>appendSearchMemoToPlant(b.dataset.plant, decodeURIComponent(b.dataset.q));
+      });
+
+      const photo = $("diagPreview").dataset.dataurl || "";
+      addDiagLog({
+        plantId,
+        plantName: plant ? plant.name : "",
+        photoDataUrl: photo,
+        sym,
+        ctx,
+        memo,
+        result
+      });
+
+      renderDiagLogs();
+      renderHomeDiag();
+      renderHomeFav();
+      renderXP();
+    });
+
+    $("resetDiag").addEventListener("click", ()=>{
+      $("diagPhotoInput").value="";
+      $("diagPreview").style.display="none";
+      $("diagPreview").src="";
+      $("diagPreview").dataset.dataurl="";
+      $("diagPlantSelect").value="";
+      document.querySelectorAll(".sym").forEach(x=>x.checked=false);
+      $("ctxWater").value="unknown";
+      $("ctxLight").value="unknown";
+      $("ctxAir").value="unknown";
+      $("diagMemo").value="";
+      $("diagResult").textContent="まだ判定してない。";
+    });
+
+    $("clearDiagLogs").addEventListener("click", ()=>{
+      if(!confirm("診断ログを全部消す？")) return;
+      state.diagLogs=[];
+      saveState();
+      renderDiagLogs();
+      renderHomeDiag();
+    });
+
+    function renderDiagLogs(){
+      const list = $("diagLogList");
+      list.innerHTML="";
+      if(state.diagLogs.length===0){
+        $("diagLogEmpty").style.display="";
+        return;
+      }
+      $("diagLogEmpty").style.display="none";
+
+      state.diagLogs.slice(0,12).forEach(log=>{
+        const el=document.createElement("div");
+        el.className="card soft";
+        el.style.padding="12px";
+        const t = new Date(log.createdAt);
+        const head = `${fmtMD(t)} ${fmtHM(t)}${log.plantName?` / ${log.plantName}`:""}`;
+        const top = (log.result && log.result[0]) ? log.result[0].title : "—";
+        el.innerHTML=`
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+            <div>
+              <div style="font-weight:999">${escapeHtml(head)}</div>
+              <div class="tiny" style="margin-top:4px">TOP：${escapeHtml(top)}</div>
+            </div>
+            <button class="btn ghost small">詳細</button>
+          </div>
+        `;
+        el.querySelector("button").onclick=()=>openDiagModal(log.id);
+        list.appendChild(el);
+      });
+    }
+
+    function renderHomeDiag(){
+      const list = $("homeDiagList");
+      list.innerHTML="";
+      const logs = state.diagLogs.slice(0,3);
+      if(logs.length===0){
+        $("homeDiagEmpty").style.display="";
+        return;
+      }
+      $("homeDiagEmpty").style.display="none";
+
+      logs.forEach(log=>{
+        const t = new Date(log.createdAt);
+        const head = `${fmtMD(t)} ${fmtHM(t)}${log.plantName?` / ${log.plantName}`:""}`;
+        const top = (log.result && log.result[0]) ? log.result[0].title : "—";
+        const el=document.createElement("div");
+        el.className="card soft";
+        el.style.padding="12px";
+        el.innerHTML=`
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+            <div>
+              <div style="font-weight:999">${escapeHtml(head)}</div>
+              <div class="tiny" style="margin-top:4px">TOP：${escapeHtml(top)}</div>
+            </div>
+            <button class="btn ghost small">見る</button>
+          </div>
+        `;
+        el.querySelector("button").onclick=()=>{ showTab("diag"); openDiagModal(log.id); };
+        list.appendChild(el);
+      });
+    }
+
+    function openDiagModal(id){
+      const log = state.diagLogs.find(x=>x.id===id);
+      if(!log) return;
+      const img = log.photoDataUrl ? `<img class="modalImg" src="${log.photoDataUrl}" alt="">` : "";
+      const t = new Date(log.createdAt);
+      const head = `${fmtMD(t)} ${fmtHM(t)}${log.plantName?` / ${log.plantName}`:""}`;
+      const symTxt = (log.sym||[]).join(" / ") || "（未選択）";
+      const ctxTxt = `水:${log.ctx?.water||"unknown"} 光:${log.ctx?.light||"unknown"} 風:${log.ctx?.air||"unknown"}`;
+
+      openModal("診断ログ", `
+        ${img}
+        <div class="hr"></div>
+        <div style="font-weight:999">${escapeHtml(head)}</div>
+        <div class="tiny" style="margin-top:6px">症状：${escapeHtml(symTxt)}</div>
+        <div class="tiny" style="margin-top:6px">状況：${escapeHtml(ctxTxt)}</div>
+        ${log.memo? `<div class="hr"></div><div class="tiny"><b>メモ</b><br>${escapeHtml(log.memo)}</div>`:""}
+        <div class="hr"></div>
+        <div style="font-weight:999;margin-bottom:6px">結果</div>
+        ${(log.result||[]).map((r,i)=>`
+          <div class="card soft" style="padding:12px;margin-top:10px">
+            <div style="font-weight:999">${i+1}. ${escapeHtml(r.title||"")}</div>
+            <div class="tiny" style="margin-top:6px">${escapeHtml(r.why||"")}</div>
+            <div class="tiny" style="margin-top:8px"><b>対処</b>：${escapeHtml((r.actions||[]).join(" / "))}</div>
+          </div>
+        `).join("")}
+        <div class="hr"></div>
+        <div class="row" style="justify-content:space-between">
+          <button class="btn danger small" id="delLog">🧨 このログ削除</button>
+          <button class="btn ghost small" id="closeLog">閉じる</button>
+        </div>
+      `);
+
+      $("closeLog").onclick=closeModal;
+      $("delLog").onclick=()=>{
+        if(!confirm("このログを削除する？")) return;
+        state.diagLogs = state.diagLogs.filter(x=>x.id!==id);
+        saveState();
+        closeModal();
+        renderDiagLogs();
+        renderHomeDiag();
+      };
+    }
+
+    /* ===== Backup ===== */
+    function downloadText(filename, text, mime="application/json"){
+      const blob = new Blob([text], { type:mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href=url; a.download=filename;
+      document.body.appendChild(a);
+      a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+    function fmtYMD(d){
+      const x=new Date(d);
+      return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,"0")}-${String(x.getDate()).padStart(2,"0")}`;
+    }
+
+    $("exportBtn").addEventListener("click", ()=>{
+      downloadText(`PlantLog_保存ファイル_${fmtYMD(new Date())}.json`, JSON.stringify(state,null,2), "application/json");
+      alert("保存ファイルを作ったよ。『ファイル』アプリに保存してね。");
+    });
+
+    $("importBtn").addEventListener("click", async ()=>{
+      const f = $("importInput").files?.[0];
+      if(!f){ alert("保存ファイルを選んでね。"); return; }
+      try{
+        const obj = JSON.parse(await f.text());
+        if(!obj || !Array.isArray(obj.plants)) throw new Error("format");
+        state = {
+          plants: Array.isArray(obj.plants)?obj.plants:[],
+          diagLogs: Array.isArray(obj.diagLogs)?obj.diagLogs:[]
+        };
+        normalizeState();
+        saveState();
+        renderPlants(); renderHome(); refreshDiagPlantSelect(); renderDiagLogs(); renderHomeDiag();
+        showTab("home");
+        alert("復元できたよ。");
+      }catch{
+        alert("このファイルはPlantLogの保存ファイルじゃないかも。別のファイルを選んでね。");
+      }
+    });
+
+    $("wipeBtn").addEventListener("click", ()=>{
+      if(!confirm("本当に全部消す？（戻せない）\n先に『保存ファイルを作る』推奨！")) return;
+      state = { plants:[], diagLogs:[] };
+      normalizeState();
+      saveState();
+      renderPlants(); renderHome(); refreshDiagPlantSelect(); renderDiagLogs(); renderHomeDiag();
+      alert("全データを消したよ。");
+    });
+
+    /* ===== ICS ===== */
+    function pad2(n){ return String(n).padStart(2,"0"); }
+    function toIcsDate(d){
+      const x=new Date(d);
+      return `${x.getFullYear()}${pad2(x.getMonth()+1)}${pad2(x.getDate())}`;
+    }
+    function icsEscape(s){ return String(s).replace(/\n/g," ").replace(/,/g,"\\,").replace(/;/g,"\\;"); }
+
+    $("exportIcsBtn").addEventListener("click", ()=>{
+      const days = 60;
+      const tasks = computeDueTasks(days);
+      if(tasks.length===0){ alert("予定に出せるタスクがない。"); return; }
+
+      const lines = [];
+      lines.push("BEGIN:VCALENDAR");
+      lines.push("VERSION:2.0");
+      lines.push("PRODID:-//PlantLog//JP");
+      lines.push("CALSCALE:GREGORIAN");
+
+      tasks.slice(0,200).forEach(t=>{
+        const dt = toIcsDate(t.due);
+        const uid = `${t.plantId}-${t.kind}-${dt}@plantlog`;
+        const summary = `${t.plantName}：${t.label}`;
+        lines.push("BEGIN:VEVENT");
+        lines.push(`UID:${uid}`);
+        lines.push(`DTSTAMP:${toIcsDate(new Date())}T000000Z`);
+        lines.push(`DTSTART;VALUE=DATE:${dt}`);
+        lines.push(`DTEND;VALUE=DATE:${dt}`);
+        lines.push(`SUMMARY:${icsEscape(summary)}`);
+        lines.push("END:VEVENT");
+      });
+
+      lines.push("END:VCALENDAR");
+
+      downloadText(`PlantLog_タスク通知_${fmtYMD(new Date())}.ics`, lines.join("\r\n"), "text/calendar");
+      alert("icsを作ったよ。カレンダーに読み込むと期限が入る。");
+    });
+
+    /* ===== Init ===== */
+    initPresets();
+    refreshDiagPlantSelect();
+    renderPlants();
+    renderHome();
     renderDiagLogs();
     renderHomeDiag();
-  };
-}
-
-/* ===== バックアップ（保存ファイル） ===== */
-function downloadText(filename, text, mime="application/json"){
-  const blob = new Blob([text], { type:mime });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href=url; a.download=filename;
-  document.body.appendChild(a);
-  a.click(); a.remove();
-  URL.revokeObjectURL(url);
-}
-function fmtYMD(d){
-  const x=new Date(d);
-  return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,"0")}-${String(x.getDate()).padStart(2,"0")}`;
-}
-$("exportBtn").addEventListener("click", ()=>{
-  downloadText(`PlantLog_保存ファイル_${fmtYMD(new Date())}.json`, JSON.stringify(state,null,2), "application/json");
-  alert("保存ファイルを作ったよ。『ファイル』アプリに保存してね。");
-});
-$("importBtn").addEventListener("click", async ()=>{
-  const f = $("importInput").files?.[0];
-  if(!f){ alert("保存ファイルを選んでね。"); return; }
-  try{
-    const obj = JSON.parse(await f.text());
-    if(!obj || !Array.isArray(obj.plants)) throw new Error("format");
-    state = {
-      plants: Array.isArray(obj.plants)?obj.plants:[],
-      diagLogs: Array.isArray(obj.diagLogs)?obj.diagLogs:[]
-    };
-    saveState();
-    renderPlants(); renderHome(); refreshDiagPlantSelect(); renderDiagLogs(); renderHomeDiag();
     showTab("home");
-    alert("復元できたよ。");
-  }catch{
-    alert("このファイルはPlantLogの保存ファイルじゃないかも。別のファイルを選んでね。");
-  }
-});
-$("wipeBtn").addEventListener("click", ()=>{
-  if(!confirm("本当に全部消す？（戻せない）\n先に『保存ファイルを作る』推奨！")) return;
-  state = { plants:[], diagLogs:[] };
-  saveState();
-  renderPlants(); renderHome(); refreshDiagPlantSelect(); renderDiagLogs(); renderHomeDiag();
-  alert("全データを消したよ。");
-});
-
-/* ===== ICS（期限日をカレンダーに入れる） ===== */
-function pad2(n){ return String(n).padStart(2,"0"); }
-function toIcsDate(d){
-  const x=new Date(d);
-  return `${x.getFullYear()}${pad2(x.getMonth()+1)}${pad2(x.getDate())}`;
-}
-function icsEscape(s){ return String(s).replace(/\\n/g," ").replace(/,/g,"\\,").replace(/;/g,"\\;"); }
-
-$("exportIcsBtn").addEventListener("click", ()=>{
-  const days = 60; // 60日分書き出し
-  const tasks = computeDueTasks(days);
-  if(tasks.length===0){ alert("予定に出せるタスクがない。"); return; }
-
-  const lines = [];
-  lines.push("BEGIN:VCALENDAR");
-  lines.push("VERSION:2.0");
-  lines.push("PRODID:-//PlantLog//JP");
-  lines.push("CALSCALE:GREGORIAN");
-
-  tasks.slice(0,200).forEach(t=>{
-    const dt = toIcsDate(t.due);
-    const uid = `${t.plantId}-${t.kind}-${dt}@plantlog`;
-    const summary = `${t.plantName}：${t.label}`;
-    lines.push("BEGIN:VEVENT");
-    lines.push(`UID:${uid}`);
-    lines.push(`DTSTAMP:${toIcsDate(new Date())}T000000Z`);
-    lines.push(`DTSTART;VALUE=DATE:${dt}`);
-    lines.push(`DTEND;VALUE=DATE:${dt}`);
-    lines.push(`SUMMARY:${icsEscape(summary)}`);
-    lines.push("END:VEVENT");
-  });
-
-  lines.push("END:VCALENDAR");
-
-  downloadText(`PlantLog_タスク通知_${fmtYMD(new Date())}.ics`, lines.join("\r\n"), "text/calendar");
-  alert("icsを作ったよ。カレンダーに読み込むと期限が入る。");
-});
-
-/* ===== 初期レンダリング ===== */
-renderPlants();
-renderHome();
-renderDiagLogs();
-renderHomeDiag();
-refreshDiagPlantSelect();
-showTab("home");
   </script>
-
 </body>
 </html>
