@@ -615,7 +615,7 @@ async function compressImageFile(file, maxW=900, quality=0.82){
   const nh = Math.max(1, Math.round(h * scale));
   const canvas = document.createElement("canvas");
   canvas.width = nw; canvas.height = nh;
-  const ctx = canvas.getContext(2d");
+  const ctx = canvas.getContext("2d");
   ctx.drawImage(img,0,0,nw,nh);
   return canvas.toDataURL("image/jpeg", quality);
 }
