@@ -1,343 +1,238 @@
 <!doctype html>
-<html lang="ja" data-theme="light">
+<html lang="ja" data-theme="beige">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>PlantLog</title>
   <meta name="theme-color" content="#f4efe6" />
-
   <style>
     :root{
-      --bg:#f4efe6;
-      --panel:#ffffff;
-      --panel2:#fbf7f0;
-      --line:#e7ded2;
-
-      --text:#2b2b2b;
-      --muted:#7a756b;
-
-      --accent:#6a8f6a;
-      --accent2:#94b594;
-
-      --danger:#ef4444;
-      --danger2:#fb7185;
-
-      --shadow: 0 12px 30px rgba(60,40,20,.10);
-      --shadow2: 0 6px 18px rgba(60,40,20,.08);
-
-      --radius:22px;
-      --tap:0.98;
+      --bg:#f4efe6; --panel:#ffffff; --panel2:#fbf7f0; --line:#e7ded2;
+      --text:#2b2b2b; --muted:#7a756b;
+      --accent:#6a8f6a; --accent2:#94b594;
+      --warn:#f59e0b; --danger:#ef4444; --ok:#10b981;
+      --shadow:0 12px 30px rgba(60,40,20,.10); --shadow2:0 6px 18px rgba(60,40,20,.08);
+      --radius:22px; --tap:.985;
     }
     [data-theme="dark"]{
-      --bg:#070b10;
-      --panel:rgba(15,23,34,.88);
-      --panel2:rgba(12,19,32,.78);
-      --line:rgba(255,255,255,.10);
-
-      --text:#e9eef6;
-      --muted:#9bb0c6;
-
-      --accent:#26e39b;
-      --accent2:#2bd3ff;
-
-      --danger:#ff6b6b;
-      --danger2:#ff9f6b;
-
-      --shadow: 0 18px 50px rgba(0,0,0,.45);
-      --shadow2: 0 10px 30px rgba(0,0,0,.35);
+      --bg:#070b10; --panel:rgba(15,23,34,.92); --panel2:rgba(12,19,32,.84); --line:rgba(255,255,255,.12);
+      --text:#e9eef6; --muted:#9bb0c6;
+      --accent:#26e39b; --accent2:#2bd3ff;
+      --warn:#ffcc66; --danger:#ff6b6b; --ok:#34d399;
+      --shadow:0 18px 50px rgba(0,0,0,.45); --shadow2:0 10px 30px rgba(0,0,0,.35);
     }
-
     *{box-sizing:border-box}
     html,body{min-height:100dvh}
     body{
       margin:0;
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",sans-serif;
       color:var(--text);
-      background: var(--bg);
-      padding:
-        calc(env(safe-area-inset-top) + 14px)
-        14px
-        calc(env(safe-area-inset-bottom) + 150px);
+      background:var(--bg);
+      padding:calc(env(safe-area-inset-top) + 14px) 14px calc(env(safe-area-inset-bottom) + 150px);
       overflow-x:hidden;
     }
     body::before{
-      content:"";
-      position:fixed; inset:0;
-      pointer-events:none;
-      opacity:.62;
+      content:""; position:fixed; inset:0; pointer-events:none; opacity:.62;
       background:
         radial-gradient(820px 520px at 10% 25%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 62%),
         radial-gradient(760px 520px at 95% 22%, color-mix(in srgb, var(--accent2) 16%, transparent), transparent 62%),
         radial-gradient(820px 520px at 50% 115%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 64%);
     }
-
-    .wrap{max-width:980px;margin:0 auto; position:relative;}
-    .grid{display:grid;gap:14px}
-
+    .wrap{max-width:980px;margin:0 auto;position:relative}
     header{
       position:sticky; top:0; z-index:20;
-      margin:-6px 0 10px;
-      padding: 8px 0 12px;
+      margin:-6px 0 10px; padding:8px 0 12px;
       background: color-mix(in srgb, var(--bg) 86%, transparent);
       backdrop-filter: blur(12px);
       border-bottom:1px solid color-mix(in srgb, var(--line) 80%, transparent);
     }
-    .top{
-      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
-      padding: 0 2px 10px;
-    }
-    .brand{display:flex; align-items:center; gap:10px;}
+    .top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:0 2px 10px}
+    .brand{display:flex;align-items:center;gap:10px}
     .logo{
-      width:40px;height:40px;border-radius:14px;
-      display:grid;place-items:center;
-      background: linear-gradient(135deg,
-        color-mix(in srgb, var(--accent) 18%, transparent),
-        color-mix(in srgb, var(--accent2) 14%, transparent));
+      width:40px;height:40px;border-radius:14px;display:grid;place-items:center;font-size:18px;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 18%, transparent), color-mix(in srgb, var(--accent2) 14%, transparent));
       border:1px solid color-mix(in srgb, var(--line) 92%, transparent);
-      box-shadow: var(--shadow2);
-      font-size:18px;
+      box-shadow:var(--shadow2);
     }
-    .title{margin:0;font-size:20px;letter-spacing:.2px;line-height:1.1;font-weight:999;}
-    .subtitle{margin-top:4px;font-size:12px;color:var(--muted);}
-
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .title{margin:0;font-size:20px;letter-spacing:.2px;line-height:1.1;font-weight:999}
+    .subtitle{margin-top:4px;font-size:12px;color:var(--muted)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
     .pill{
-      font-size:12px;
-      color:var(--muted);
-      padding:8px 12px;
-      border:1px solid color-mix(in srgb, var(--line) 92%, transparent);
-      border-radius:999px;
-      background: color-mix(in srgb, var(--panel) 78%, transparent);
-      box-shadow: 0 8px 18px rgba(60,40,20,.06);
-      white-space:nowrap;
-      user-select:none;
+      font-size:12px;color:var(--muted);
+      padding:8px 12px;border:1px solid color-mix(in srgb, var(--line) 92%, transparent);
+      border-radius:999px;background: color-mix(in srgb, var(--panel) 78%, transparent);
+      box-shadow:0 8px 18px rgba(60,40,20,.06);
+      user-select:none; white-space:nowrap;
     }
     .pillBtn{cursor:pointer}
-
     .tabs{
-      display:flex; gap:10px;
-      overflow-x:auto;
-      -webkit-overflow-scrolling:touch;
-      padding: 0 2px 4px;
-      scrollbar-width:none;
+      display:flex;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 2px 4px;scrollbar-width:none
     }
     .tabs::-webkit-scrollbar{display:none}
     .tab{
       flex:0 0 auto;
-      display:flex; align-items:center; gap:8px;
-      padding:12px 14px;
-      border-radius:999px;
+      display:flex;align-items:center;gap:8px;
+      padding:12px 14px;border-radius:999px;
       border:1px solid color-mix(in srgb, var(--line) 92%, transparent);
       background: color-mix(in srgb, var(--panel) 72%, transparent);
-      box-shadow: var(--shadow2);
-      cursor:pointer;
-      user-select:none;
-      font-weight:999;
-      font-size:14px;
+      box-shadow:var(--shadow2);
+      cursor:pointer;user-select:none;font-weight:999;font-size:14px;
       transition: transform .08s ease;
     }
-    .tab:active{ transform: scale(var(--tap)); }
+    .tab:active{transform:scale(var(--tap))}
     .tab.active{
-      background: linear-gradient(90deg,
-        color-mix(in srgb, var(--accent) 24%, transparent),
-        color-mix(in srgb, var(--accent2) 18%, transparent));
+      background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 24%, transparent), color-mix(in srgb, var(--accent2) 18%, transparent));
       border-color: color-mix(in srgb, var(--accent) 36%, var(--line));
     }
-
+    main{display:grid;gap:14px}
     .card{
       border:1px solid color-mix(in srgb, var(--line) 92%, transparent);
-      border-radius: var(--radius);
+      border-radius:var(--radius);
       background: color-mix(in srgb, var(--panel) 90%, transparent);
-      box-shadow: var(--shadow);
-      padding: 16px;
-      overflow:hidden;
+      box-shadow:var(--shadow);
+      padding:16px; overflow:hidden;
     }
-    .card.soft{
-      background: color-mix(in srgb, var(--panel) 78%, transparent);
-      box-shadow:none;
-    }
-    .cardTitle{
-      margin:0 0 6px;
-      font-size:18px;
-      letter-spacing:.2px;
-      display:flex;gap:8px;align-items:center;
-      font-weight:999;
-    }
-    .sub{color:var(--muted);font-size:13px;line-height:1.6;}
+    .card.soft{background: color-mix(in srgb, var(--panel) 78%, transparent); box-shadow:none}
+    .cardTitle{margin:0 0 6px;font-size:18px;letter-spacing:.2px;display:flex;gap:8px;align-items:center;font-weight:999}
+    .sub{color:var(--muted);font-size:13px;line-height:1.6}
     .tiny{font-size:12px;color:var(--muted)}
-    .hr{height:1px;background:color-mix(in srgb, var(--line) 85%, transparent); margin:14px 0}
-
+    .hr{height:1px;background: color-mix(in srgb, var(--line) 85%, transparent); margin:14px 0}
     .btn{
       border:none;
       background: linear-gradient(90deg, var(--accent), var(--accent2));
       color: color-mix(in srgb, var(--text) 10%, #0d2011);
       font-weight:999;
-      padding:12px 14px;
-      border-radius:14px;
-      cursor:pointer;
-      box-shadow: 0 12px 24px color-mix(in srgb, var(--accent) 18%, transparent);
+      padding:12px 14px;border-radius:14px;cursor:pointer;
+      box-shadow:0 12px 24px color-mix(in srgb, var(--accent) 18%, transparent);
       transition: transform .08s ease;
     }
-    .btn:active{ transform: scale(var(--tap)); }
+    .btn:active{transform:scale(var(--tap))}
     .btn.small{padding:10px 12px;font-size:13px;border-radius:12px}
     .btn.ghost{
       background: color-mix(in srgb, var(--panel) 90%, transparent);
       border:1px solid color-mix(in srgb, var(--line) 92%, transparent);
-      box-shadow:none;
-      color:var(--text);
-      font-weight:999;
+      box-shadow:none;color:var(--text);font-weight:999;
+    }
+    .btn.warn{
+      background: linear-gradient(90deg, color-mix(in srgb, var(--warn) 92%, #ffd8a8), #ffd8a8);
+      color:#2a1a05;
+      box-shadow:0 12px 24px color-mix(in srgb, var(--warn) 18%, transparent);
     }
     .btn.danger{
-      background: linear-gradient(90deg, var(--danger), var(--danger2));
+      background: linear-gradient(90deg, var(--danger), #fb7185);
       color:#2a0b0b;
-      box-shadow: 0 12px 24px color-mix(in srgb, var(--danger) 20%, transparent);
+      box-shadow:0 12px 24px color-mix(in srgb, var(--danger) 20%, transparent);
     }
-
     input,select,textarea{
       width:100%;
       border:1px solid color-mix(in srgb, var(--line) 92%, transparent);
-      border-radius:14px;
-      padding:12px 12px;
+      border-radius:14px;padding:12px 12px;
       background: color-mix(in srgb, var(--panel) 78%, transparent);
-      color:var(--text);
-      outline:none;
-      font-size:14px;
+      color:var(--text); outline:none; font-size:14px;
     }
     textarea{min-height:92px;resize:vertical}
     label{display:block;margin:12px 0 6px;font-size:12px;color:var(--muted)}
+    .split{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:860px){ .split{grid-template-columns:1.2fr .8fr} }
 
-    /* plant cards */
-    .plantGrid{
-      display:grid;
-      gap:12px;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-    }
-    @media(min-width:860px){ .plantGrid{grid-template-columns: repeat(3, minmax(0,1fr));} }
+    .plantGrid{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+    @media(min-width:860px){ .plantGrid{grid-template-columns:repeat(3,minmax(0,1fr))} }
     .plantCard{
       border:1px solid color-mix(in srgb, var(--line) 92%, transparent);
-      border-radius: var(--radius);
-      overflow:hidden;
+      border-radius:var(--radius); overflow:hidden;
       background: color-mix(in srgb, var(--panel) 90%, transparent);
-      box-shadow: var(--shadow);
-      cursor:pointer;
-      transition: transform .08s ease;
+      box-shadow:var(--shadow);
+      cursor:pointer; transition: transform .08s ease;
     }
-    .plantCard:active{ transform: scale(var(--tap)); }
-    .thumb{
-      height:120px;
-      background: linear-gradient(90deg,
-        color-mix(in srgb, var(--accent) 22%, transparent),
-        color-mix(in srgb, var(--accent2) 18%, transparent));
-      position:relative;
+    .plantCard:active{transform:scale(var(--tap))}
+    .thumb{height:120px;position:relative;
+      background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 22%, transparent), color-mix(in srgb, var(--accent2) 18%, transparent));
     }
     .thumb img{width:100%;height:100%;object-fit:cover;display:block}
     .badge{
       position:absolute;left:10px;top:10px;
-      font-size:12px;
-      padding:7px 10px;
-      border-radius:999px;
-      background: color-mix(in srgb, var(--panel) 90%, transparent);
+      font-size:12px;padding:7px 10px;border-radius:999px;
+      background: color-mix(in srgb, var(--panel) 92%, transparent);
       border:1px solid color-mix(in srgb, var(--line) 92%, transparent);
-      color:var(--muted);
-      font-weight:999;
-      backdrop-filter: blur(8px);
+      color:var(--muted); font-weight:999; backdrop-filter: blur(8px);
+      max-width: calc(100% - 20px);
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
     }
     .plantBody{padding:12px}
     .plantName{margin:0;font-size:15px;font-weight:999}
     .plantMeta{margin-top:6px;font-size:12px;color:var(--muted);line-height:1.45}
 
-    /* modal */
     .modalBack{
-      position:fixed; inset:0;
-      background: rgba(0,0,0,.26);
-      display:none;
-      align-items:flex-end;
-      justify-content:center;
-      padding: 18px;
-      z-index:60;
+      position:fixed; inset:0; background: rgba(0,0,0,.26);
+      display:none; align-items:flex-end; justify-content:center;
+      padding:18px; z-index:60;
     }
     .modal{
-      width:min(720px, 100%);
-      border-radius: 22px;
+      width:min(740px,100%);
+      border-radius:22px; overflow:hidden;
       background: color-mix(in srgb, var(--panel) 96%, transparent);
       border:1px solid color-mix(in srgb, var(--line) 92%, transparent);
-      box-shadow: 0 30px 90px rgba(0,0,0,.25);
-      overflow:hidden;
+      box-shadow:0 30px 90px rgba(0,0,0,.25);
     }
     .modalHeader{
-      display:flex; justify-content:space-between; align-items:center;
-      padding:14px 14px;
-      border-bottom:1px solid color-mix(in srgb, var(--line) 92%, transparent);
+      display:flex;justify-content:space-between;align-items:center;
+      padding:14px 14px;border-bottom:1px solid color-mix(in srgb, var(--line) 92%, transparent);
     }
     .x{
       border:1px solid color-mix(in srgb, var(--line) 92%, transparent);
       background: color-mix(in srgb, var(--panel) 90%, transparent);
-      border-radius:12px;
-      padding:8px 10px;
-      cursor:pointer;
-      font-weight:999;
-      color:var(--text);
+      border-radius:12px;padding:8px 10px;cursor:pointer;font-weight:999;color:var(--text);
     }
     .modalBody{padding:14px}
     .modalImg{
-      width:100%;
-      height:220px;
-      object-fit:cover;
-      border-radius: 18px;
+      width:100%;height:220px;object-fit:cover;border-radius:18px;
       border:1px solid color-mix(in srgb, var(--line) 92%, transparent);
       background: color-mix(in srgb, var(--panel) 86%, transparent);
     }
 
-    /* bottom nav */
     .bottomNav{
-      position:fixed;
-      left:14px; right:14px;
+      position:fixed; left:14px; right:14px;
       bottom: calc(env(safe-area-inset-bottom) + 18px);
-      height:66px;
-      border-radius: 20px;
+      height:66px; border-radius:20px;
       border:1px solid color-mix(in srgb, var(--line) 92%, transparent);
       background: color-mix(in srgb, var(--panel) 88%, transparent);
-      box-shadow: 0 18px 40px rgba(0,0,0,.14);
-      display:flex;
-      overflow:hidden;
-      z-index:40;
+      box-shadow:0 18px 40px rgba(0,0,0,.14);
+      display:flex; overflow:hidden; z-index:40;
       backdrop-filter: blur(12px);
       transition: transform .22s ease;
     }
-    .bottomNav.hide{ transform: translateY(120%); }
+    .bottomNav.hide{transform:translateY(120%)}
     .navBtn{
-      flex:1;
-      border:none;
-      background:transparent;
-      display:flex;flex-direction:column;
-      align-items:center;justify-content:center;
-      gap:6px;
-      color:var(--muted);
-      font-weight:999;
-      cursor:pointer;
+      flex:1; border:none; background:transparent;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+      color:var(--muted); font-weight:999; cursor:pointer;
     }
     .navBtn .ico{font-size:18px;line-height:1}
-    .navBtn.active{color: var(--accent)}
+    .navBtn.active{color:var(--accent)}
     .navMid{
-      width:72px;
-      display:flex;align-items:center;justify-content:center;
+      width:72px;display:flex;align-items:center;justify-content:center;
       border-left:1px solid color-mix(in srgb, var(--line) 75%, transparent);
       border-right:1px solid color-mix(in srgb, var(--line) 75%, transparent);
-      background: linear-gradient(180deg,
-        color-mix(in srgb, var(--accent) 10%, transparent),
-        transparent);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 10%, transparent), transparent);
     }
     .navMid button{
-      width:46px;height:46px;border-radius:16px;
-      border:none;
+      width:46px;height:46px;border-radius:16px;border:none;
       background: linear-gradient(90deg, var(--accent), var(--accent2));
-      color:#0d2011;font-weight:999;
-      box-shadow: 0 14px 26px color-mix(in srgb, var(--accent) 22%, transparent);
-      cursor:pointer;
-      font-size:20px;
+      color:#0d2011;font-weight:999;cursor:pointer;font-size:20px;
+      box-shadow:0 14px 26px color-mix(in srgb, var(--accent) 22%, transparent);
       transition: transform .08s ease;
     }
-    .navMid button:active{ transform: scale(var(--tap)); }
+    .navMid button:active{transform:scale(var(--tap))}
+    .chipRow{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{
+      font-size:12px;padding:7px 10px;border-radius:999px;
+      border:1px solid color-mix(in srgb, var(--line) 92%, transparent);
+      background: color-mix(in srgb, var(--panel2) 90%, transparent);
+      color:var(--text); user-select:none;
+    }
+    .chip.ok{border-color: color-mix(in srgb, var(--ok) 35%, var(--line))}
+    .chip.warn{border-color: color-mix(in srgb, var(--warn) 35%, var(--line))}
+    .chip.bad{border-color: color-mix(in srgb, var(--danger) 35%, var(--line))}
   </style>
 </head>
 
@@ -349,7 +244,7 @@
           <div class="logo">🍃</div>
           <div>
             <h1 class="title">PlantLog</h1>
-            <div class="subtitle">植物の管理を優しくかんたんに</div>
+            <div class="subtitle">写真・タスク・診断ログ（端末内保存）</div>
           </div>
         </div>
         <div class="row" style="justify-content:flex-end">
@@ -359,24 +254,26 @@
       </div>
 
       <div class="tabs" id="tabs">
-        <div class="tab active" data-tab="home">🏠 今日</div>
+        <div class="tab active" data-tab="home">🏠 ホーム</div>
         <div class="tab" data-tab="plants">🌿 植物</div>
         <div class="tab" data-tab="add">➕ 追加</div>
+        <div class="tab" data-tab="diag">🩺 診断</div>
         <div class="tab" data-tab="backup">💾 保存</div>
       </div>
     </header>
 
-    <main class="grid">
+    <main>
       <!-- HOME -->
       <section class="card" id="view-home">
-        <h2 class="cardTitle">🏠 今日</h2>
-        <div class="sub">期限が近いタスクだけ出す。完了で次の期限に更新。</div>
+        <h2 class="cardTitle">🏠 ホーム</h2>
+        <div class="sub">期限が近いタスクだけ表示。完了で次の期限に更新。</div>
 
         <div class="hr"></div>
 
         <div class="row">
-          <button class="btn" id="homeAddBtn">＋ 植物を追加（写真）</button>
-          <button class="btn ghost" id="homeListBtn">🌿 一覧を見る</button>
+          <button class="btn" id="homeAddBtn">📷 追加（写真）</button>
+          <button class="btn ghost" id="homePresetBtn">✨ 既定から追加</button>
+          <button class="btn ghost" id="homePlantsBtn">🌿 一覧へ</button>
         </div>
 
         <div class="hr"></div>
@@ -391,7 +288,7 @@
         <div class="row" style="justify-content:space-between;align-items:flex-end">
           <div>
             <div style="font-weight:999">タスク（期限が近いもの）</div>
-            <div class="sub" style="margin-top:4px">近い期限だけ表示。ワンタップで完了。</div>
+            <div class="sub" style="margin-top:4px">期限の表示範囲を変えられる。</div>
           </div>
           <div class="row" style="gap:6px">
             <span class="tiny">期限</span>
@@ -404,7 +301,20 @@
         <div class="sub" id="taskEmpty" style="display:none;margin-top:10px">今日やること：なし</div>
 
         <div class="hr"></div>
-        <div class="tiny">※すべて端末内保存（クラウド送信なし）</div>
+
+        <div class="row" style="justify-content:space-between;align-items:flex-end">
+          <div>
+            <div style="font-weight:999">診断ログ（最近）</div>
+            <div class="sub" style="margin-top:4px">写真つきログが残る（軽量保存）。</div>
+          </div>
+          <button class="btn small ghost" id="homeGoDiag">🩺 診断へ</button>
+        </div>
+
+        <div id="homeDiagList" style="display:grid;gap:10px;margin-top:12px"></div>
+        <div class="sub" id="homeDiagEmpty" style="display:none;margin-top:10px">診断ログ：なし</div>
+
+        <div class="hr"></div>
+        <div class="tiny">※クラウド送信なし（localStorage保存）</div>
       </section>
 
       <!-- PLANTS -->
@@ -412,71 +322,190 @@
         <div class="row" style="justify-content:space-between;align-items:flex-end">
           <div>
             <h2 class="cardTitle">🌿 植物</h2>
-            <div class="sub">写真カードで一覧。タップで詳細（完了ボタン付き）。</div>
+            <div class="sub">写真カード。タップで詳細＆完了。</div>
           </div>
-          <button class="btn small" id="addFromPlants">➕ 追加</button>
+          <div class="row">
+            <button class="btn small" id="plantsAddBtn">➕ 追加</button>
+            <button class="btn small ghost" id="plantsPresetBtn">✨ 既定</button>
+          </div>
         </div>
 
         <div class="hr"></div>
 
         <div class="plantGrid" id="plantGrid"></div>
-        <div class="sub" id="plantEmpty" style="display:none;margin-top:10px">まだ植物がありません。➕から追加してね。</div>
+        <div class="sub" id="plantEmpty" style="display:none;margin-top:10px">まだ植物がありません。</div>
       </section>
 
       <!-- ADD -->
       <section class="card" id="view-add" style="display:none">
         <h2 class="cardTitle">➕ 植物を追加</h2>
-        <div class="sub">写真＋名前＋周期だけでOK。</div>
+        <div class="sub">写真＋名前＋品種＋周期。診断とタスクに繋がる。</div>
 
         <div class="hr"></div>
 
-        <label>写真（カメラ/アルバム）</label>
-        <input id="photoInput" type="file" accept="image/*" capture="environment" />
-        <img id="photoPreview" class="modalImg" style="display:none;margin-top:10px" />
+        <div class="split">
+          <div class="card soft">
+            <label>写真（カメラ/アルバム）</label>
+            <input id="photoInput" type="file" accept="image/*" capture="environment" />
+            <img id="photoPreview" class="modalImg" style="display:none;margin-top:10px" />
+            <div class="tiny" style="margin-top:8px">※写真は端末内保存（軽量化して保存）</div>
 
-        <label style="margin-top:12px">名前</label>
-        <input id="nameInput" placeholder="例：モンステラ / コルジリネ" />
+            <label style="margin-top:12px">名前（表示名）</label>
+            <input id="nameInput" placeholder="例：モンステラ" />
 
-        <label>置き場所（任意）</label>
-        <input id="locInput" placeholder="例：リビング窓際 / 温室" />
+            <label>植物の品種（任意）</label>
+            <input id="speciesInput" placeholder="例：Monstera deliciosa / 斑入り" />
 
-        <div class="row" style="margin-top:10px">
-          <div style="flex:1">
-            <label>水やり周期（日）</label>
-            <input id="waterEvery" type="number" min="0" value="7" />
+            <label>置き場所（任意）</label>
+            <input id="locInput" placeholder="例：リビング窓際 / 温室" />
+
+            <div class="row" style="margin-top:10px">
+              <div style="flex:1">
+                <label>水やり周期（日）</label>
+                <input id="waterEvery" type="number" min="0" value="7" />
+              </div>
+              <div style="flex:1">
+                <label>肥料周期（日）</label>
+                <input id="fertEvery" type="number" min="0" value="30" />
+              </div>
+              <div style="flex:1">
+                <label>剪定周期（日）</label>
+                <input id="pruneEvery" type="number" min="0" value="90" />
+              </div>
+            </div>
+
+            <label>メモ（任意）</label>
+            <textarea id="memoInput" placeholder="例：冬は控えめ。葉水は週2。"></textarea>
+
+            <div class="row" style="margin-top:12px">
+              <button class="btn" id="savePlant">✅ 追加する</button>
+              <button class="btn ghost" id="resetAdd">リセット</button>
+            </div>
           </div>
-          <div style="flex:1">
-            <label>肥料周期（日）</label>
-            <input id="fertEvery" type="number" min="0" value="30" />
-          </div>
-          <div style="flex:1">
-            <label>剪定周期（日）</label>
-            <input id="pruneEvery" type="number" min="0" value="90" />
+
+          <div class="card soft">
+            <h3 style="margin:0 0 10px">✨ 既定テンプレから追加</h3>
+            <div class="sub">よくある観葉植物60種。周期と品種のたたき台になる。</div>
+            <div class="hr"></div>
+            <label>テンプレを選ぶ</label>
+            <select id="presetSelect"></select>
+
+            <div class="row" style="margin-top:10px">
+              <button class="btn ghost" id="presetFillBtn">⬇️ 入力に反映</button>
+              <button class="btn warn" id="presetQuickAddBtn">⚡ すぐ追加（写真なし）</button>
+            </div>
+
+            <div class="hr"></div>
+            <div class="tiny">コツ：テンプレ→写真撮影→保存 が最速。</div>
+            <div class="chipRow" style="margin-top:10px">
+              <span class="chip">📷 写真は圧縮保存</span>
+              <span class="chip">📆 タスク自動</span>
+              <span class="chip">🩺 診断ログ</span>
+            </div>
           </div>
         </div>
+      </section>
 
-        <label>メモ（任意）</label>
-        <textarea id="memoInput" placeholder="例：冬は控えめ。葉水は週2。"></textarea>
+      <!-- DIAG -->
+      <section class="card" id="view-diag" style="display:none">
+        <h2 class="cardTitle">🩺 病気チェック</h2>
+        <div class="sub">写真＋症状質問で「原因候補TOP3」と「対処」を出す（ルール式→後でAI可）。</div>
 
-        <div class="row" style="margin-top:12px">
-          <button class="btn" id="savePlant">✅ 追加する</button>
-          <button class="btn ghost" id="resetAdd">リセット</button>
+        <div class="hr"></div>
+
+        <div class="split">
+          <div class="card soft">
+            <label>写真（任意）</label>
+            <input id="diagPhotoInput" type="file" accept="image/*" capture="environment" />
+            <img id="diagPreview" class="modalImg" style="display:none;margin-top:10px" />
+
+            <label style="margin-top:12px">この診断を保存する植物（任意）</label>
+            <select id="diagPlantSelect"></select>
+
+            <label style="margin-top:12px">症状（当てはまるもの）</label>
+            <div class="row">
+              <label style="flex:1"><input type="checkbox" class="sym" value="yellow"> 葉が黄ばむ</label>
+              <label style="flex:1"><input type="checkbox" class="sym" value="spots"> 斑点/シミ</label>
+              <label style="flex:1"><input type="checkbox" class="sym" value="wilting"> しおれる</label>
+            </div>
+            <div class="row">
+              <label style="flex:1"><input type="checkbox" class="sym" value="bugs"> 虫/ベタつき</label>
+              <label style="flex:1"><input type="checkbox" class="sym" value="mold"> カビ/白い粉</label>
+              <label style="flex:1"><input type="checkbox" class="sym" value="brown"> 茶色く枯れる</label>
+            </div>
+
+            <label style="margin-top:12px">状況</label>
+            <div class="row">
+              <div style="flex:1">
+                <label style="margin-top:0">直近で水やり多め？</label>
+                <select id="ctxWater">
+                  <option value="unknown">わからない</option>
+                  <option value="more">多め</option>
+                  <option value="less">少なめ</option>
+                </select>
+              </div>
+              <div style="flex:1">
+                <label style="margin-top:0">日当たり</label>
+                <select id="ctxLight">
+                  <option value="unknown">わからない</option>
+                  <option value="strong">強い</option>
+                  <option value="weak">弱い</option>
+                </select>
+              </div>
+              <div style="flex:1">
+                <label style="margin-top:0">風通し</label>
+                <select id="ctxAir">
+                  <option value="unknown">わからない</option>
+                  <option value="good">良い</option>
+                  <option value="bad">悪い</option>
+                </select>
+              </div>
+            </div>
+
+            <label>メモ</label>
+            <textarea id="diagMemo" placeholder="例：最近寒い／土が乾かない／鉢が重いなど"></textarea>
+
+            <div class="row" style="margin-top:12px">
+              <button class="btn" id="runDiag">🩺 判定する</button>
+              <button class="btn ghost" id="resetDiag">リセット</button>
+            </div>
+          </div>
+
+          <div class="card soft">
+            <h3 style="margin:0 0 8px">結果</h3>
+            <div class="sub">判定→ログ保存→ホームに表示。写真も圧縮で保存。</div>
+            <div class="hr"></div>
+            <div id="diagResult" class="sub">まだ判定してない。</div>
+
+            <div class="hr"></div>
+            <div class="row" style="justify-content:space-between;align-items:flex-end">
+              <div>
+                <div style="font-weight:999">診断ログ</div>
+                <div class="tiny">最新から表示（タップで詳細）</div>
+              </div>
+              <button class="btn small ghost" id="clearDiagLogs">🧹 ログ削除</button>
+            </div>
+            <div id="diagLogList" style="display:grid;gap:10px;margin-top:12px"></div>
+            <div class="sub" id="diagLogEmpty" style="display:none;margin-top:10px">ログ：なし</div>
+          </div>
         </div>
       </section>
 
       <!-- BACKUP -->
       <section class="card" id="view-backup" style="display:none">
         <h2 class="cardTitle">💾 引っ越し・保存</h2>
-        <div class="sub">スマホ変更や万が一に備えて、保存ファイルを作れます。</div>
+        <div class="sub">スマホ変更や万が一に備えて、保存ファイルを作れる。</div>
 
         <div class="hr"></div>
 
         <div class="card soft">
           <h3 style="margin:0 0 6px">① 保存ファイルを作る</h3>
-          <div class="sub">「ファイル」アプリやiCloudに保存しておけば安心。</div>
+          <div class="sub">iCloud/ファイルに保存しておけば安心。</div>
           <div class="row" style="margin-top:10px">
             <button class="btn" id="exportBtn">⬇️ 保存ファイルを作る</button>
+            <button class="btn ghost" id="exportIcsBtn">📆 タスク通知(ics)</button>
           </div>
+          <div class="tiny" style="margin-top:8px">icsは0円で通知に近い運用ができる。</div>
         </div>
 
         <div class="hr"></div>
@@ -494,7 +523,7 @@
 
         <div class="card soft">
           <h3 style="margin:0 0 6px">③ 全部消す（最終手段）</h3>
-          <div class="sub">戻せない。先に①をおすすめ。</div>
+          <div class="sub">戻せない。先に①推奨。</div>
           <div class="row" style="margin-top:10px">
             <button class="btn danger" id="wipeBtn">🧨 全データを消す</button>
           </div>
@@ -519,428 +548,932 @@
 
   <!-- Bottom nav -->
   <nav class="bottomNav" aria-label="Bottom Navigation">
-    <button class="navBtn active" data-tab="home"><div class="ico">🏠</div><div style="font-size:11px">今日</div></button>
+    <button class="navBtn active" data-tab="home"><div class="ico">🏠</div><div style="font-size:11px">ホーム</div></button>
     <button class="navBtn" data-tab="plants"><div class="ico">🌿</div><div style="font-size:11px">植物</div></button>
     <div class="navMid"><button type="button" id="nav-add">＋</button></div>
+    <button class="navBtn" data-tab="diag"><div class="ico">🩺</div><div style="font-size:11px">診断</div></button>
     <button class="navBtn" data-tab="backup"><div class="ico">💾</div><div style="font-size:11px">保存</div></button>
   </nav>
 
   <script>
-    const $ = (id)=>document.getElementById(id);
-    const views = ["home","plants","add","backup"];
-    const LS_KEY = "plantlog_step2_v1";
-    const THEME_KEY = "plantlog_theme_step2_v1";
+/* ===== PlantLog v1 (PART 1/3) =====/
+/* ===== PlantLog v1 (PART 2/3) ===== */
+const $ = (id)=>document.getElementById(id);
+const views = ["home","plants","add","diag","backup"];
+const LS_KEY = "plantlog_full_v1";
+const THEME_KEY = "plantlog_theme_full_v1";
 
-    function nowISO(){ return new Date().toISOString(); }
-    function escapeHtml(s=""){
-      return String(s).replace(/[&<>"']/g, m => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-      }[m]));
-    }
-    function fileToDataUrl(file){
-      return new Promise((resolve,reject)=>{
-        const r=new FileReader();
-        r.onload=()=>resolve(r.result);
-        r.onerror=reject;
-        r.readAsDataURL(file);
-      });
-    }
-    function newId(prefix="p"){
-      return prefix + "_" + Math.random().toString(36).slice(2,10) + "_" + Date.now().toString(36);
-    }
+function nowISO(){ return new Date().toISOString(); }
+function escapeHtml(s=""){
+  return String(s).replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[m]));
+}
+function newId(prefix="p"){
+  return prefix + "_" + Math.random().toString(36).slice(2,10) + "_" + Date.now().toString(36);
+}
+function toDateOnly(d){ const x=new Date(d); x.setHours(0,0,0,0); return x; }
+function addDays(date, days){ const d=new Date(date); d.setDate(d.getDate()+days); return d; }
+function fmtMD(d){ const x=new Date(d); return `${x.getMonth()+1}/${x.getDate()}`; }
+function fmtHM(d){ const x=new Date(d); return `${String(x.getHours()).padStart(2,"0")}:${String(x.getMinutes()).padStart(2,"0")}`; }
 
-    function toDateOnly(d){ const x = new Date(d); x.setHours(0,0,0,0); return x; }
-    function addDays(date, days){ const d=new Date(date); d.setDate(d.getDate()+days); return d; }
-    function fmtMD(d){ const x=new Date(d); return `${x.getMonth()+1}/${x.getDate()}`; }
+/* ===== 画像圧縮（軽量保存） ===== */
+function fileToDataUrl(file){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onload=()=>resolve(r.result);
+    r.onerror=reject;
+    r.readAsDataURL(file);
+  });
+}
+async function compressImageFile(file, maxW=900, quality=0.82){
+  const dataUrl = await fileToDataUrl(file);
+  const img = new Image();
+  await new Promise((res,rej)=>{ img.onload=res; img.onerror=rej; img.src=dataUrl; });
+  const w = img.naturalWidth || img.width;
+  const h = img.naturalHeight || img.height;
+  const scale = Math.min(1, maxW / w);
+  const nw = Math.max(1, Math.round(w * scale));
+  const nh = Math.max(1, Math.round(h * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = nw; canvas.height = nh;
+  const ctx = canvas.getContext(2d");
+  ctx.drawImage(img,0,0,nw,nh);
+  return canvas.toDataURL("image/jpeg", quality);
+}
 
-    function loadState(){
-      const raw = localStorage.getItem(LS_KEY);
-      if(!raw) return { plants: [] };
-      try{
-        const st = JSON.parse(raw);
-        return { plants: Array.isArray(st.plants) ? st.plants : [] };
-      }catch{
-        return { plants: [] };
+/* ===== 保存 ===== */
+function loadState(){
+  const raw = localStorage.getItem(LS_KEY);
+  if(!raw) return { plants:[], diagLogs:[] };
+  try{
+    const st = JSON.parse(raw);
+    return {
+      plants: Array.isArray(st.plants)? st.plants:[],
+      diagLogs: Array.isArray(st.diagLogs)? st.diagLogs:[]
+    };
+  }catch{
+    return { plants:[], diagLogs:[] };
+  }
+}
+function saveState(){
+  localStorage.setItem(LS_KEY, JSON.stringify(state));
+  $("statusPill").textContent="保存: 端末の中 ✓";
+  setTimeout(()=> $("statusPill").textContent="保存: 端末の中", 800);
+}
+let state = loadState();
+
+/* ===== テーマ ===== */
+function applyTheme(t){
+  document.documentElement.setAttribute("data-theme", t==="dark"?"dark":"beige");
+  localStorage.setItem(THEME_KEY, t);
+  $("themeBtn").textContent = (t==="dark")?"☀️ ベージュ":"🌙 ダーク";
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute("content", (t==="dark")?"#070b10":"#f4efe6");
+}
+applyTheme(localStorage.getItem(THEME_KEY)||"beige");
+$("themeBtn").addEventListener("click",()=>{
+  const cur = localStorage.getItem(THEME_KEY)||"beige";
+  applyTheme(cur==="dark"?"beige":"dark");
+});
+
+/* ===== 画面切替 ===== */
+function showTab(tab){
+  views.forEach(v=>{
+    const el = $("view-"+v);
+    if(el) el.style.display = (v===tab)?"":"none";
+  });
+  document.querySelectorAll(".tab").forEach(el=>{
+    el.classList.toggle("active", el.dataset.tab===tab);
+  });
+  document.querySelectorAll(".navBtn").forEach(el=>{
+    el.classList.toggle("active", el.dataset.tab===tab);
+  });
+  if(tab==="plants") renderPlants();
+  if(tab==="home") renderHome();
+  if(tab==="diag") renderDiagLogs();
+}
+$("tabs").addEventListener("click",(e)=>{
+  const t = e.target.closest(".tab");
+  if(!t) return;
+  showTab(t.dataset.tab);
+});
+document.querySelectorAll(".navBtn").forEach(btn=>{
+  btn.addEventListener("click",()=>showTab(btn.dataset.tab));
+});
+
+/* ===== 下ナビ自動隠し ===== */
+let lastY = window.scrollY;
+const nav = document.querySelector(".bottomNav");
+window.addEventListener("scroll",()=>{
+  const y=window.scrollY;
+  const down=y>lastY;
+  if(down && y>24) nav.classList.add("hide");
+  else nav.classList.remove("hide");
+  lastY=y;
+},{passive:true});
+function hideNav(ms=1100){
+  nav.classList.add("hide");
+  setTimeout(()=>nav.classList.remove("hide"),ms);
+}
+
+/* ===== 60種テンプレ ===== */
+const PRESETS = [
+["モンステラ","Monstera deliciosa",7,30,90],
+["コルジリネ","Cordyline",7,30,90],
+["ポトス","Epipremnum aureum",7,30,60],
+["サンスベリア","Dracaena trifasciata",14,45,120],
+["パキラ","Pachira aquatica",7,30,90],
+["フィカス・ウンベラータ","Ficus umbellata",7,30,90],
+["フィカス・ベンガレンシス","Ficus benghalensis",7,30,90],
+["フィロデンドロン","Philodendron",7,30,90],
+["ガジュマル","Ficus microcarpa",7,30,90],
+["アンスリウム","Anthurium",7,30,60],
+["ストレリチア","Strelitzia",7,30,90],
+["ドラセナ","Dracaena",10,30,120],
+["アロカシア","Alocasia",7,30,60],
+["カラテア","Calathea",7,30,60],
+["オリーブ","Olea europaea",10,45,120],
+["ローズマリー","Rosmarinus",7,45,120],
+["ラベンダー","Lavandula",7,45,120],
+["バジル","Ocimum basilicum",3,21,30],
+["ミント","Mentha",3,21,30],
+["アイビー","Hedera",7,30,90],
+["シダ","Fern",7,30,90],
+["クワズイモ","Alocasia odora",7,30,90],
+["シンゴニウム","Syngonium",7,30,60],
+["アグラオネマ","Aglaonema",7,30,90],
+["ホヤ","Hoya",10,30,90],
+["カポック","Schefflera",7,30,90],
+["ユッカ","Yucca",14,45,120],
+["ディフェンバキア","Dieffenbachia",7,30,60],
+["エバーフレッシュ","Albizia julibrissin",7,30,90],
+["トックリラン","Beaucarnea",14,45,120],
+["ベゴニア","Begonia",7,30,60],
+["セローム","Philodendron selloum",7,30,90],
+["アロエ","Aloe",14,45,120],
+["エケベリア","Echeveria",14,45,120],
+["ハオルチア","Haworthia",14,45,120],
+["カランコエ","Kalanchoe",10,30,60],
+["クッカバラ","Philodendron xanadu",7,30,90],
+["モンステラ・アダンソニー","Monstera adansonii",7,30,90],
+["グズマニア","Guzmania",7,30,60],
+["エアプランツ","Tillandsia",5,30,90],
+["ブーゲンビリア","Bougainvillea",7,45,120],
+["シマトネリコ","Fraxinus griffithii",7,30,120],
+["レモン","Citrus limon",7,45,120],
+["アボカド","Persea americana",7,45,120],
+["サボテン","Cactus",14,45,180],
+["柱サボテン","Cereus",14,45,180],
+["ゴムの木","Ficus elastica",7,30,90],
+["ベンジャミン","Ficus benjamina",7,30,90],
+["パンダガジュマル","Ficus microcarpa panda",7,30,90],
+["ペペロミア","Peperomia",7,30,90],
+["スパティフィラム","Spathiphyllum",7,30,60],
+["リプサリス","Rhipsalis",7,30,90],
+["ネフロレピス","Nephrolepis",7,30,60],
+["アレカヤシ","Dypsis lutescens",7,30,90],
+["チャメドレア","Chamaedorea",7,30,90],
+["テーブルヤシ","Chamaedorea elegans",7,30,90],
+["ポリシャス","Polyscias",7,30,90],
+["クルシア","Clusia",7,30,90],
+["セダム","Sedum",10,30,120]
+];
+
+function initPresets(){
+  const sel = $("presetSelect");
+  sel.innerHTML="";
+  PRESETS.forEach((p,i)=>{
+    const opt=document.createElement("option");
+    opt.value=i;
+    opt.textContent=p[0];
+    sel.appendChild(opt);
+  });
+}
+initPresets();
+    /* ===== UI：モーダル ===== */
+function openModal(title, html){
+  $("modalTitle").textContent = title;
+  $("modalBody").innerHTML = html;
+  $("modalBack").style.display = "flex";
+}
+function closeModal(){ $("modalBack").style.display="none"; }
+$("closeModal").addEventListener("click", closeModal);
+$("modalBack").addEventListener("click",(e)=>{ if(e.target.id==="modalBack") closeModal(); });
+
+/* ===== 下ナビ：中央＋でカメラ起動 ===== */
+$("nav-add").addEventListener("click", ()=>{
+  showTab("add");
+  openAddCamera();
+});
+function openAddCamera(){
+  hideNav(1300);
+  setTimeout(()=> $("photoInput").click(), 60);
+}
+
+/* ===== Homeボタン ===== */
+$("homeAddBtn").addEventListener("click", ()=>{
+  showTab("add"); openAddCamera();
+});
+$("homePresetBtn").addEventListener("click", ()=>{ showTab("add"); $("presetSelect").focus(); });
+$("homePlantsBtn").addEventListener("click", ()=> showTab("plants"));
+$("homeGoDiag").addEventListener("click", ()=> showTab("diag"));
+
+/* ===== Plantsボタン ===== */
+$("plantsAddBtn").addEventListener("click", ()=>{ showTab("add"); openAddCamera(); });
+$("plantsPresetBtn").addEventListener("click", ()=>{ showTab("add"); $("presetSelect").focus(); });
+
+/* ===== 既定 → 入力に反映 ===== */
+function presetToForm(idx){
+  const p = PRESETS[idx];
+  if(!p) return;
+  $("nameInput").value = p[0];
+  $("speciesInput").value = p[1];
+  $("waterEvery").value = String(p[2]);
+  $("fertEvery").value  = String(p[3]);
+  $("pruneEvery").value = String(p[4]);
+}
+$("presetFillBtn").addEventListener("click", ()=>{
+  presetToForm(parseInt($("presetSelect").value,10)||0);
+  alert("入力欄に反映したよ。写真を撮って『追加する』が最速。");
+});
+$("presetQuickAddBtn").addEventListener("click", ()=>{
+  const idx = parseInt($("presetSelect").value,10)||0;
+  const p = PRESETS[idx];
+  if(!p) return;
+  const plant = makePlant({
+    name:p[0], species:p[1], location:"", memo:"",
+    waterEvery:p[2], fertEvery:p[3], pruneEvery:p[4],
+    photoDataUrl:""
+  });
+  state.plants.unshift(plant);
+  saveState();
+  renderPlants(); renderHome(); refreshDiagPlantSelect();
+  alert("追加したよ（写真なし）。あとで写真を撮って更新もできる。");
+  showTab("plants");
+});
+
+/* ===== 追加フォーム ===== */
+$("photoInput").addEventListener("change", async ()=>{
+  const f = $("photoInput").files?.[0];
+  if(!f) return;
+  try{
+    const dataUrl = await compressImageFile(f, 980, 0.82);
+    $("photoPreview").src = dataUrl;
+    $("photoPreview").style.display = "";
+    $("photoPreview").dataset.dataurl = dataUrl;
+  }catch{
+    const raw = await fileToDataUrl(f);
+    $("photoPreview").src = raw;
+    $("photoPreview").style.display = "";
+    $("photoPreview").dataset.dataurl = raw;
+  }
+});
+$("resetAdd").addEventListener("click", ()=>{
+  $("photoInput").value="";
+  $("photoPreview").style.display="none";
+  $("photoPreview").src="";
+  $("photoPreview").dataset.dataurl="";
+  $("nameInput").value="";
+  $("speciesInput").value="";
+  $("locInput").value="";
+  $("waterEvery").value="7";
+  $("fertEvery").value="30";
+  $("pruneEvery").value="90";
+  $("memoInput").value="";
+});
+
+function makePlant({name,species,location,memo,photoDataUrl,waterEvery,fertEvery,pruneEvery}){
+  const now = nowISO();
+  return {
+    id:newId("p"),
+    name, species, location, memo,
+    photoDataUrl: photoDataUrl || "",
+    createdAt: now,
+
+    waterEvery: Number(waterEvery)||0,
+    fertEvery:  Number(fertEvery)||0,
+    pruneEvery: Number(pruneEvery)||0,
+
+    lastWaterAt: now,
+    lastFertAt:  now,
+    lastPruneAt: now
+  };
+}
+
+$("savePlant").addEventListener("click", async ()=>{
+  const name = $("nameInput").value.trim();
+  if(!name){ alert("名前を入れて。"); return; }
+
+  const btn = $("savePlant");
+  const prev = btn.textContent;
+  btn.textContent="保存中…"; btn.disabled=true;
+
+  const plant = makePlant({
+    name,
+    species: $("speciesInput").value.trim(),
+    location:$("locInput").value.trim(),
+    memo:$("memoInput").value.trim(),
+    waterEvery:$("waterEvery").value,
+    fertEvery:$("fertEvery").value,
+    pruneEvery:$("pruneEvery").value,
+    photoDataUrl:$("photoPreview").dataset.dataurl || ""
+  });
+
+  state.plants.unshift(plant);
+  saveState();
+
+  btn.textContent=prev; btn.disabled=false;
+  $("resetAdd").click();
+
+  renderPlants(); renderHome(); refreshDiagPlantSelect();
+  showTab("plants");
+});
+
+/* ===== タスク自動生成 ===== */
+function computeDueTasks(daysWindow){
+  const today = toDateOnly(new Date());
+  const until = addDays(today, daysWindow);
+
+  const tasks=[];
+  for(const p of state.plants){
+    const items=[
+      {kind:"water", label:"💧 水やり", every:p.waterEvery||0, last:p.lastWaterAt||p.createdAt},
+      {kind:"fert",  label:"🧪 肥料",   every:p.fertEvery||0,  last:p.lastFertAt||p.createdAt},
+      {kind:"prune", label:"✂️ 剪定",   every:p.pruneEvery||0, last:p.lastPruneAt||p.createdAt},
+    ];
+    for(const it of items){
+      if(!it.every || it.every<=0) continue;
+      const base = toDateOnly(new Date(it.last));
+      const due = addDays(base, it.every);
+      if(due>=today && due<=until){
+        tasks.push({ plantId:p.id, plantName:p.name, kind:it.kind, label:it.label, due });
       }
     }
-    function saveState(){
-      localStorage.setItem(LS_KEY, JSON.stringify(state));
-      $("statusPill").textContent = "保存: 端末の中 ✓";
-      setTimeout(()=> $("statusPill").textContent = "保存: 端末の中", 800);
-    }
-    let state = loadState();
+  }
+  tasks.sort((a,b)=>a.due-b.due);
+  return tasks;
+}
+function markTaskDone(plantId, kind){
+  const idx = state.plants.findIndex(x=>x.id===plantId);
+  if(idx<0) return;
+  const now = nowISO();
+  const p = state.plants[idx];
+  if(kind==="water") p.lastWaterAt=now;
+  if(kind==="fert")  p.lastFertAt=now;
+  if(kind==="prune") p.lastPruneAt=now;
+  state.plants[idx]=p;
+  saveState();
+}
 
-    function applyTheme(t){
-      document.documentElement.setAttribute("data-theme", t);
-      localStorage.setItem(THEME_KEY, t);
-      $("themeBtn").textContent = (t==="dark") ? "☀️ ベージュ" : "🌙 ダーク";
-      const meta = document.querySelector('meta[name="theme-color"]');
-      if(meta) meta.setAttribute("content", (t==="dark") ? "#070b10" : "#f4efe6");
-    }
-    applyTheme(localStorage.getItem(THEME_KEY) || "light");
-    $("themeBtn").addEventListener("click", ()=>{
-      const cur = document.documentElement.getAttribute("data-theme") || "light";
-      applyTheme(cur==="dark" ? "light" : "dark");
-    });
+/* ===== レンダリング：Home ===== */
+function renderHome(){
+  $("countPill").textContent = String(state.plants.length);
 
-    function showTab(tab){
-      views.forEach(v=>{
-        $("view-"+v).style.display = (v===tab) ? "" : "none";
-      });
-      document.querySelectorAll(".tab").forEach(el=>{
-        el.classList.toggle("active", el.dataset.tab===tab);
-      });
-      document.querySelectorAll(".navBtn").forEach(el=>{
-        el.classList.toggle("active", el.dataset.tab===tab);
-      });
+  const days = parseInt($("daysWindow").value||"3",10) || 3;
+  const tasks = computeDueTasks(days);
+  const list = $("taskList");
+  list.innerHTML="";
 
-      if(tab==="plants") renderPlants();
-      if(tab==="home") renderHome();
-    }
-
-    $("tabs").addEventListener("click",(e)=>{
-      const t = e.target.closest(".tab");
-      if(!t) return;
-      showTab(t.dataset.tab);
-    });
-    document.querySelectorAll(".navBtn").forEach(btn=>{
-      btn.addEventListener("click", ()=> showTab(btn.dataset.tab));
-    });
-
-    let lastY = window.scrollY;
-    const nav = document.querySelector(".bottomNav");
-    window.addEventListener("scroll", () => {
-      const y = window.scrollY;
-      const goingDown = y > lastY;
-      if (goingDown && y > 24) nav.classList.add("hide");
-      else nav.classList.remove("hide");
-      lastY = y;
-    }, { passive:true });
-
-    function hideNavTemporarily(ms=1100){
-      nav.classList.add("hide");
-      setTimeout(()=> nav.classList.remove("hide"), ms);
-    }
-
-    function openAddCamera(){
-      hideNavTemporarily(1200);
-      setTimeout(()=> $("photoInput").click(), 60);
-    }
-
-    $("homeAddBtn").addEventListener("click", ()=>{
-      showTab("add");
-      openAddCamera();
-    });
-    $("homeListBtn").addEventListener("click", ()=> showTab("plants"));
-    $("addFromPlants").addEventListener("click", ()=>{
-      showTab("add");
-      openAddCamera();
-    });
-    $("nav-add").addEventListener("click", ()=>{
-      showTab("add");
-      openAddCamera();
-    });
-
-    $("photoInput").addEventListener("change", async ()=>{
-      const f = $("photoInput").files?.[0];
-      if(!f) return;
-      const dataUrl = await fileToDataUrl(f);
-      $("photoPreview").src = dataUrl;
-      $("photoPreview").style.display = "";
-    });
-
-    $("resetAdd").addEventListener("click", ()=>{
-      $("photoInput").value="";
-      $("photoPreview").style.display="none";
-      $("nameInput").value="";
-      $("locInput").value="";
-      $("waterEvery").value="7";
-      $("fertEvery").value="30";
-      $("pruneEvery").value="90";
-      $("memoInput").value="";
-    });
-
-    $("savePlant").addEventListener("click", async ()=>{
-      const name = $("nameInput").value.trim();
-      if(!name){ alert("名前を入れて。"); return; }
-
-      const btn = $("savePlant");
-      const prev = btn.textContent;
-      btn.textContent = "保存中…";
-      btn.disabled = true;
-
-      let photoDataUrl = "";
-      const f = $("photoInput").files?.[0];
-      if(f){ try{ photoDataUrl = await fileToDataUrl(f); }catch{} }
-
-      const plant = {
-        id: newId("p"),
-        name,
-        location: $("locInput").value.trim(),
-        memo: $("memoInput").value.trim(),
-        photoDataUrl,
-        createdAt: nowISO(),
-
-        waterEvery: parseInt($("waterEvery").value,10) || 0,
-        fertEvery:  parseInt($("fertEvery").value,10)  || 0,
-        pruneEvery: parseInt($("pruneEvery").value,10) || 0,
-
-        lastWaterAt: nowISO(),
-        lastFertAt:  nowISO(),
-        lastPruneAt: nowISO(),
-      };
-
-      state.plants.unshift(plant);
-      saveState();
-
-      btn.textContent = prev;
-      btn.disabled = false;
-
-      $("resetAdd").click();
-      renderPlants();
-      renderHome();
-      showTab("plants");
-    });
-
-    function computeDueTasks(daysWindow){
-      const today = toDateOnly(new Date());
-      const until = addDays(today, daysWindow);
-
-      const tasks=[];
-      for(const p of state.plants){
-        const items=[
-          {kind:"water", label:"💧 水やり", every:p.waterEvery||0, last:p.lastWaterAt || p.createdAt},
-          {kind:"fert",  label:"🧪 肥料",   every:p.fertEvery||0,  last:p.lastFertAt  || p.createdAt},
-          {kind:"prune", label:"✂️ 剪定",   every:p.pruneEvery||0, last:p.lastPruneAt || p.createdAt},
-        ];
-        for(const it of items){
-          if(!it.every || it.every<=0) continue;
-          const base = toDateOnly(new Date(it.last));
-          const due = addDays(base, it.every);
-          if(due>=today && due<=until){
-            tasks.push({ plantId:p.id, plantName:p.name, kind:it.kind, label:it.label, due });
-          }
-        }
-      }
-      tasks.sort((a,b)=>a.due-b.due);
-      return tasks;
-    }
-
-    function markTaskDone(plantId, kind){
-      const idx = state.plants.findIndex(x=>x.id===plantId);
-      if(idx<0) return;
-      const now = nowISO();
-      const p = state.plants[idx];
-      if(kind==="water") p.lastWaterAt = now;
-      if(kind==="fert")  p.lastFertAt  = now;
-      if(kind==="prune") p.lastPruneAt = now;
-      state.plants[idx] = p;
-      saveState();
-    }
-
-    function renderHome(){
-      $("countPill").textContent = String(state.plants.length);
-
-      const days = parseInt($("daysWindow").value || "3", 10) || 3;
-      const tasks = computeDueTasks(days);
-
-      const list = $("taskList");
-      const empty = $("taskEmpty");
-      list.innerHTML = "";
-
-      if(tasks.length===0){
-        empty.style.display="";
-        return;
-      }
-      empty.style.display="none";
-
-      const today = toDateOnly(new Date());
-
-      for(const t of tasks){
-        const diff = Math.round((toDateOnly(t.due) - today) / (1000*60*60*24));
-        const tag = diff===0 ? "今日" : diff===1 ? "明日" : `あと${diff}日`;
-
-        const el = document.createElement("div");
-        el.className="card soft";
-        el.style.padding="12px";
-        el.innerHTML = `
-          <div style="display:flex;gap:12px;align-items:center;justify-content:space-between">
-            <div>
-              <div style="font-weight:999">${escapeHtml(t.plantName)} に ${escapeHtml(t.label)}</div>
-              <div class="tiny" style="margin-top:4px">期限：${fmtMD(t.due)}（${tag}）</div>
-            </div>
-            <div class="row" style="gap:8px">
-              <button class="btn ghost small" data-act="detail">詳細</button>
-              <button class="btn small" data-act="done">完了</button>
-            </div>
+  const empty = $("taskEmpty");
+  if(tasks.length===0){
+    empty.style.display="";
+  }else{
+    empty.style.display="none";
+    const today = toDateOnly(new Date());
+    for(const t of tasks){
+      const diff = Math.round((toDateOnly(t.due)-today)/(1000*60*60*24));
+      const tag = diff===0 ? "今日" : diff===1 ? "明日" : `あと${diff}日`;
+      const el = document.createElement("div");
+      el.className="card soft";
+      el.style.padding="12px";
+      el.innerHTML = `
+        <div style="display:flex;gap:12px;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-weight:999">${escapeHtml(t.plantName)} に ${escapeHtml(t.label)}</div>
+            <div class="tiny" style="margin-top:4px">期限：${fmtMD(t.due)}（${tag}）</div>
           </div>
-        `;
-
-        el.querySelector('[data-act="detail"]').onclick = ()=> openPlantModal(t.plantId);
-        el.querySelector('[data-act="done"]').onclick = ()=>{
-          markTaskDone(t.plantId, t.kind);
-          renderHome();
-        };
-
-        list.appendChild(el);
-      }
-    }
-
-    $("daysWindow").addEventListener("change", renderHome);
-
-    function closeModal(){ $("modalBack").style.display="none"; }
-    $("closeModal").addEventListener("click", closeModal);
-    $("modalBack").addEventListener("click",(e)=>{ if(e.target.id==="modalBack") closeModal(); });
-
-    function renderPlants(){
-      const grid = $("plantGrid");
-      grid.innerHTML = "";
-
-      if(state.plants.length===0){
-        $("plantEmpty").style.display="";
-        return;
-      }
-      $("plantEmpty").style.display="none";
-
-      for(const p of state.plants){
-        const card = document.createElement("div");
-        card.className="plantCard";
-        const thumb = p.photoDataUrl || "";
-        const badge = p.location ? escapeHtml(p.location) : "登録済";
-
-        card.innerHTML = `
-          <div class="thumb">
-            ${thumb ? `<img src="${thumb}" alt="">` : ""}
-            <div class="badge">${badge}</div>
+          <div class="row" style="gap:8px">
+            <button class="btn ghost small" data-act="detail">詳細</button>
+            <button class="btn small" data-act="done">完了</button>
           </div>
-          <div class="plantBody">
-            <div class="plantName">${escapeHtml(p.name)}</div>
-            <div class="plantMeta">${escapeHtml(p.memo || "メモなし")}</div>
-          </div>
-        `;
-        card.addEventListener("click", ()=> openPlantModal(p.id));
-        grid.appendChild(card);
-      }
-      $("countPill").textContent = String(state.plants.length);
-    }
-
-    function openPlantModal(id){
-      const p = state.plants.find(x=>x.id===id);
-      if(!p) return;
-
-      const img = p.photoDataUrl ? `<img class="modalImg" src="${p.photoDataUrl}" alt="">` : "";
-      const fmtLast = (iso)=> iso ? fmtMD(iso) : "—";
-      const w = p.waterEvery||0, f=p.fertEvery||0, pr=p.pruneEvery||0;
-
-      $("modalTitle").textContent = `詳細：${p.name}`;
-      $("modalBody").innerHTML = `
-        ${img}
-        <div class="hr"></div>
-
-        <div class="row" style="gap:10px">
-          <button class="btn small" id="markWater">💧 水やり</button>
-          <button class="btn ghost small" id="markFert">🧪 肥料</button>
-          <button class="btn ghost small" id="markPrune">✂️ 剪定</button>
-        </div>
-
-        <div class="hr"></div>
-
-        <div class="sub"><b>置き場所</b><br>${escapeHtml(p.location || "—")}</div>
-        <div class="hr"></div>
-        <div class="sub"><b>メモ</b><br>${escapeHtml(p.memo || "—")}</div>
-
-        <div class="hr"></div>
-
-        <div class="card soft" style="padding:12px">
-          <div style="font-weight:999;margin-bottom:6px">周期</div>
-          <div class="sub">💧 ${w}日 / 🧪 ${f}日 / ✂️ ${pr}日</div>
-          <div class="tiny" style="margin-top:6px">最終：💧 ${fmtLast(p.lastWaterAt)} / 🧪 ${fmtLast(p.lastFertAt)} / ✂️ ${fmtLast(p.lastPruneAt)}</div>
-        </div>
-
-        <div class="hr"></div>
-
-        <div class="row" style="justify-content:space-between">
-          <button class="btn danger small" id="deletePlant">🧨 削除</button>
-          <button class="btn ghost small" id="closePlant">閉じる</button>
-        </div>
-      `;
-
-      $("modalBack").style.display="flex";
-      $("closePlant").onclick = closeModal;
-
-      const updatePlant = (patch)=>{
-        const idx = state.plants.findIndex(x=>x.id===id);
-        if(idx<0) return;
-        state.plants[idx] = { ...state.plants[idx], ...patch };
-        saveState();
-        renderPlants();
-        renderHome();
-        openPlantModal(id);
-      };
-
-      $("markWater").onclick = ()=> updatePlant({ lastWaterAt: nowISO() });
-      $("markFert").onclick  = ()=> updatePlant({ lastFertAt:  nowISO() });
-      $("markPrune").onclick = ()=> updatePlant({ lastPruneAt: nowISO() });
-
-      $("deletePlant").onclick = ()=>{
-        if(!confirm("この植物を削除する？（戻せない）")) return;
-        state.plants = state.plants.filter(x=>x.id!==id);
-        saveState();
-        closeModal();
-        renderPlants();
+        </div>`;
+      el.querySelector('[data-act="detail"]').onclick=()=>openPlantModal(t.plantId);
+      el.querySelector('[data-act="done"]').onclick=()=>{
+        markTaskDone(t.plantId, t.kind);
         renderHome();
       };
+      list.appendChild(el);
     }
+  }
+  renderHomeDiag();
+}
+$("daysWindow").addEventListener("change", renderHome);
 
-    function downloadText(filename, text, mime="application/json"){
-      const blob = new Blob([text], { type:mime });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href=url; a.download=filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    }
-    function fmtYMD(d){
-      const x=new Date(d);
-      return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,"0")}-${String(x.getDate()).padStart(2,"0")}`;
-    }
+/* ===== レンダリング：Plants ===== */
+function renderPlants(){
+  const grid = $("plantGrid");
+  grid.innerHTML="";
+  if(state.plants.length===0){
+    $("plantEmpty").style.display="";
+    return;
+  }
+  $("plantEmpty").style.display="none";
 
-    $("exportBtn").addEventListener("click", ()=>{
-      downloadText(`PlantLog_保存ファイル_${fmtYMD(new Date())}.json`, JSON.stringify(state,null,2), "application/json");
-      alert("保存ファイルを作ったよ。『ファイル』アプリに保存してね。");
-    });
+  for(const p of state.plants){
+    const card=document.createElement("div");
+    card.className="plantCard";
+    const thumb = p.photoDataUrl || "";
+    const badge = p.location ? escapeHtml(p.location) : (p.species ? escapeHtml(p.species) : "登録済");
+    card.innerHTML=`
+      <div class="thumb">
+        ${thumb? `<img src="${thumb}" alt="">` : ``}
+        <div class="badge">${badge}</div>
+      </div>
+      <div class="plantBody">
+        <div class="plantName">${escapeHtml(p.name)}</div>
+        <div class="plantMeta">${escapeHtml(p.memo || "メモなし")}</div>
+      </div>`;
+    card.addEventListener("click",()=>openPlantModal(p.id));
+    grid.appendChild(card);
+  }
+}
 
-    $("importBtn").addEventListener("click", async ()=>{
-      const f = $("importInput").files?.[0];
-      if(!f){ alert("保存ファイルを選んでね。"); return; }
-      try{
-        const obj = JSON.parse(await f.text());
-        if(!obj || !Array.isArray(obj.plants)) throw new Error("format");
-        state = { plants: Array.isArray(obj.plants) ? obj.plants : [] };
-        saveState();
-        renderPlants();
-        renderHome();
-        showTab("home");
-        alert("復元できたよ。");
-      }catch{
-        alert("このファイルはPlantLogの保存ファイルじゃないかも。別のファイルを選んでね。");
-      }
-    });
+/* ===== 植物詳細（モーダル） ===== */
+function openPlantModal(id){
+  const p = state.plants.find(x=>x.id===id);
+  if(!p) return;
 
-    $("wipeBtn").addEventListener("click", ()=>{
-      if(!confirm("本当に全部消す？（戻せない）\n先に『保存ファイルを作る』がおすすめ！")) return;
-      state = { plants: [] };
-      saveState();
-      renderPlants();
-      renderHome();
-      alert("全データを消したよ。");
-    });
+  const img = p.photoDataUrl ? `<img class="modalImg" src="${p.photoDataUrl}" alt="">` : "";
+  const fmtLast = (iso)=> iso ? fmtMD(iso) : "—";
 
-    renderPlants();
-    renderHome();
+  openModal(`詳細：${p.name}`, `
+    ${img}
+    <div class="hr"></div>
+
+    <div class="row" style="gap:10px">
+      <button class="btn small" id="markWater">💧 水やり</button>
+      <button class="btn ghost small" id="markFert">🧪 肥料</button>
+      <button class="btn ghost small" id="markPrune">✂️ 剪定</button>
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="sub"><b>品種</b><br>${escapeHtml(p.species || "—")}</div>
+    <div class="hr"></div>
+    <div class="sub"><b>置き場所</b><br>${escapeHtml(p.location || "—")}</div>
+    <div class="hr"></div>
+    <div class="sub"><b>メモ</b><br>${escapeHtml(p.memo || "—")}</div>
+
+    <div class="hr"></div>
+
+    <div class="card soft" style="padding:12px">
+      <div style="font-weight:999;margin-bottom:6px">周期</div>
+      <div class="sub">💧 ${p.waterEvery||0}日 / 🧪 ${p.fertEvery||0}日 / ✂️ ${p.pruneEvery||0}日</div>
+      <div class="tiny" style="margin-top:6px">最終：💧 ${fmtLast(p.lastWaterAt)} / 🧪 ${fmtLast(p.lastFertAt)} / ✂️ ${fmtLast(p.lastPruneAt)}</div>
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="row" style="justify-content:space-between">
+      <button class="btn danger small" id="deletePlant">🧨 削除</button>
+      <button class="btn ghost small" id="editPlant">✏️ 編集</button>
+    </div>
+  `);
+
+  const updatePlant=(patch)=>{
+    const idx = state.plants.findIndex(x=>x.id===id);
+    if(idx<0) return;
+    state.plants[idx] = { ...state.plants[idx], ...patch };
+    saveState();
+    renderPlants(); renderHome(); refreshDiagPlantSelect();
+  };
+
+  $("markWater").onclick=()=>{ updatePlant({lastWaterAt:nowISO()}); openPlantModal(id); };
+  $("markFert").onclick =()=>{ updatePlant({lastFertAt:nowISO()}); openPlantModal(id); };
+  $("markPrune").onclick=()=>{ updatePlant({lastPruneAt:nowISO()}); openPlantModal(id); };
+
+  $("deletePlant").onclick=()=>{
+    if(!confirm("この植物を削除する？（戻せない）")) return;
+    state.plants = state.plants.filter(x=>x.id!==id);
+    saveState();
+    closeModal();
+    renderPlants(); renderHome(); refreshDiagPlantSelect();
+  };
+
+  $("editPlant").onclick=()=>{
+    openModal(`編集：${p.name}`, `
+      <div class="sub">写真の差し替えは「追加」画面で撮り直してから作り直すのが最速。</div>
+      <div class="hr"></div>
+
+      <label>名前</label>
+      <input id="eName" value="${escapeHtml(p.name)}">
+
+      <label>品種</label>
+      <input id="eSpecies" value="${escapeHtml(p.species||"")}">
+
+      <label>置き場所</label>
+      <input id="eLoc" value="${escapeHtml(p.location||"")}">
+
+      <label>水やり周期（日）</label>
+      <input id="eW" type="number" min="0" value="${p.waterEvery||0}">
+
+      <label>肥料周期（日）</label>
+      <input id="eF" type="number" min="0" value="${p.fertEvery||0}">
+
+      <label>剪定周期（日）</label>
+      <input id="eP" type="number" min="0" value="${p.pruneEvery||0}">
+
+      <label>メモ</label>
+      <textarea id="eMemo">${escapeHtml(p.memo||"")}</textarea>
+
+      <div class="row" style="margin-top:12px">
+        <button class="btn" id="eSave">✅ 保存</button>
+        <button class="btn ghost" id="eCancel">キャンセル</button>
+      </div>
+    `);
+    $("eCancel").onclick=()=>openPlantModal(id);
+    $("eSave").onclick=()=>{
+      const nn=$("eName").value.trim();
+      if(!nn){ alert("名前を入れて。"); return; }
+      updatePlant({
+        name:nn,
+        species:$("eSpecies").value.trim(),
+        location:$("eLoc").value.trim(),
+        waterEvery:Number($("eW").value)||0,
+        fertEvery:Number($("eF").value)||0,
+        pruneEvery:Number($("eP").value)||0,
+        memo:$("eMemo").value.trim()
+      });
+      openPlantModal(id);
+    };
+  };
+}
+
+/* ===== 診断：入力 ===== */
+function refreshDiagPlantSelect(){
+  const sel = $("diagPlantSelect");
+  sel.innerHTML="";
+  const opt0=document.createElement("option");
+  opt0.value=""; opt0.textContent="（選ばない）";
+  sel.appendChild(opt0);
+  for(const p of state.plants){
+    const opt=document.createElement("option");
+    opt.value=p.id;
+    opt.textContent=p.name;
+    sel.appendChild(opt);
+  }
+}
+refreshDiagPlantSelect();
+
+/* 写真プレビュー（診断） */
+$("diagPhotoInput").addEventListener("change", async ()=>{
+  const f = $("diagPhotoInput").files?.[0];
+  if(!f) return;
+  try{
+    const dataUrl = await compressImageFile(f, 980, 0.82);
+    $("diagPreview").src=dataUrl;
+    $("diagPreview").style.display="";
+    $("diagPreview").dataset.dataurl=dataUrl;
+  }catch{
+    const raw=await fileToDataUrl(f);
+    $("diagPreview").src=raw;
+    $("diagPreview").style.display="";
+    $("diagPreview").dataset.dataurl=raw;
+  }
+});
+
+/* ===== 診断ルール（ルール式 TOP3） ===== */
+function runRuleDiagnosis(symSet, ctx){
+  const scores = [];
+  const add = (key, title, score, why, actions)=>{
+    scores.push({key,title,score,why,actions});
+  };
+
+  // 基本スコア
+  if(symSet.has("yellow")){
+    add("overwater","水のやりすぎ", 3, "黄ばみは過湿で出やすい", ["土が乾くまで水を止める","鉢底の排水確認","根腐れなら植え替え"]);
+    add("underlight","日照不足", 2, "光不足でも黄ばみやすい", ["明るい日陰へ移動","急な直射は避ける"]);
+    add("nutrient","栄養不足", 2, "新芽以外が薄くなる", ["薄めの液肥を少量","肥料は頻度より量を控えめ"]);
+  }
+  if(symSet.has("spots")){
+    add("fungus","カビ/病気（斑点）", 3, "斑点は病気・ストレスの典型", ["葉を拭く/切る","風通しUP","過湿を避ける"]);
+    add("sunburn","葉焼け", 2, "強光でシミが出る", ["レース越しに","移動は段階的に"]);
+  }
+  if(symSet.has("wilting")){
+    add("dry","水切れ/乾燥", 3, "しおれは水不足の典型", ["土が乾いていればたっぷり","葉水で湿度UP","根詰まり確認"]);
+    add("rootrot","根腐れ", 3, "過湿でもしおれる", ["土が湿って重いなら水停止","根の状態確認","植え替え検討"]);
+  }
+  if(symSet.has("bugs")){
+    add("pests","害虫（ハダニ/カイガラムシ等）", 4, "ベタつき・虫はほぼ害虫", ["葉裏を洗う/拭く","隔離","必要なら薬剤"]);
+  }
+  if(symSet.has("mold")){
+    add("powdery","うどんこ/カビ", 4, "白い粉はカビの可能性大", ["葉を拭く/切る","風通しUP","水やり控えめ"]);
+  }
+  if(symSet.has("brown")){
+    add("dryair","乾燥/水切れ", 3, "茶枯れは乾燥や水切れ", ["水の見直し","葉水/加湿","直射やエアコン風回避"]);
+    add("salt","肥料焼け", 2, "肥料過多で先が枯れる", ["肥料を止める","一度たっぷり流す"]);
+  }
+
+  // 文脈補正
+  if(ctx.water==="more"){
+    for(const s of scores){ if(s.key==="overwater"||s.key==="rootrot") s.score+=2; }
+  }
+  if(ctx.water==="less"){
+    for(const s of scores){ if(s.key==="dry") s.score+=2; }
+  }
+  if(ctx.light==="strong"){
+    for(const s of scores){ if(s.key==="sunburn") s.score+=2; }
+  }
+  if(ctx.light==="weak"){
+    for(const s of scores){ if(s.key==="underlight") s.score+=2; }
+  }
+  if(ctx.air==="bad"){
+    for(const s of scores){ if(s.key==="fungus"||s.key==="powdery") s.score+=2; }
+  }
+
+  // 同点整理
+  scores.sort((a,b)=>b.score-a.score);
+  const top = scores.slice(0,3);
+  return top.length ? top : [{title:"情報不足", score:0, why:"症状が少ない", actions:["症状を追加","写真を撮る","水やり/光/風通しを選ぶ"]}];
+}
+
+/* ===== 診断：保存ログ ===== */
+function addDiagLog({plantId, plantName, photoDataUrl, sym, ctx, memo, result}){
+  const log = {
+    id:newId("d"),
+    createdAt: nowISO(),
+    plantId: plantId || "",
+    plantName: plantName || "",
+    photoDataUrl: photoDataUrl || "",
+    sym: Array.from(sym),
+    ctx,
+    memo: memo || "",
+    result
+  };
+  state.diagLogs.unshift(log);
+  state.diagLogs = state.diagLogs.slice(0,50); // 上限
+  saveState();
+}
+
+/* ===== 診断：実行 ===== */
+$("runDiag").addEventListener("click", ()=>{
+  const sym = new Set(Array.from(document.querySelectorAll(".sym:checked")).map(x=>x.value));
+  const ctx = {
+    water: $("ctxWater").value,
+    light: $("ctxLight").value,
+    air: $("ctxAir").value
+  };
+  const memo = $("diagMemo").value.trim();
+  const plantId = $("diagPlantSelect").value;
+  const plant = plantId ? state.plants.find(p=>p.id===plantId) : null;
+
+  const result = runRuleDiagnosis(sym, ctx);
+
+  $("diagResult").innerHTML = `
+    <div style="font-weight:999;margin-bottom:8px">原因候補TOP${result.length}</div>
+    ${result.map((r,i)=>`
+      <div class="card soft" style="padding:12px;margin-top:10px">
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+          <div style="font-weight:999">${i+1}. ${escapeHtml(r.title)}</div>
+          <div class="chip ${r.score>=5?'bad':r.score>=3?'warn':'ok'}">スコア ${r.score}</div>
+        </div>
+        <div class="tiny" style="margin-top:6px">${escapeHtml(r.why||"")}</div>
+        <div class="tiny" style="margin-top:8px"><b>対処</b>：${escapeHtml((r.actions||[]).join(" / "))}</div>
+      </div>
+    `).join("")}
+    <div class="hr"></div>
+    <div class="tiny">※これはルール式。正確性を上げるなら次でAI化できる。</div>
+  `;
+
+  const photo = $("diagPreview").dataset.dataurl || "";
+  addDiagLog({
+    plantId,
+    plantName: plant ? plant.name : "",
+    photoDataUrl: photo,
+    sym,
+    ctx,
+    memo,
+    result
+  });
+
+  renderDiagLogs();
+  renderHomeDiag();
+});
+$("resetDiag").addEventListener("click", ()=>{
+  $("diagPhotoInput").value="";
+  $("diagPreview").style.display="none";
+  $("diagPreview").src="";
+  $("diagPreview").dataset.dataurl="";
+  $("diagPlantSelect").value="";
+  document.querySelectorAll(".sym").forEach(x=>x.checked=false);
+  $("ctxWater").value="unknown";
+  $("ctxLight").value="unknown";
+  $("ctxAir").value="unknown";
+  $("diagMemo").value="";
+  $("diagResult").textContent="まだ判定してない。";
+});
+$("clearDiagLogs").addEventListener("click", ()=>{
+  if(!confirm("診断ログを全部消す？")) return;
+  state.diagLogs=[];
+  saveState();
+  renderDiagLogs();
+  renderHomeDiag();
+});
+
+/* ===== 診断ログ表示 ===== */
+function renderDiagLogs(){
+  const list = $("diagLogList");
+  list.innerHTML="";
+  if(state.diagLogs.length===0){
+    $("diagLogEmpty").style.display="";
+    return;
+  }
+  $("diagLogEmpty").style.display="none";
+
+  state.diagLogs.slice(0,12).forEach(log=>{
+    const el=document.createElement("div");
+    el.className="card soft";
+    el.style.padding="12px";
+    const t = new Date(log.createdAt);
+    const head = `${fmtMD(t)} ${fmtHM(t)}${log.plantName?` / ${log.plantName}`:""}`;
+    const top = (log.result && log.result[0]) ? log.result[0].title : "—";
+    el.innerHTML=`
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+        <div>
+          <div style="font-weight:999">${escapeHtml(head)}</div>
+          <div class="tiny" style="margin-top:4px">TOP：${escapeHtml(top)}</div>
+        </div>
+        <button class="btn ghost small">詳細</button>
+      </div>
+    `;
+    el.querySelector("button").onclick=()=>openDiagModal(log.id);
+    list.appendChild(el);
+  });
+}
+
+function renderHomeDiag(){
+  const list = $("homeDiagList");
+  list.innerHTML="";
+  const logs = state.diagLogs.slice(0,3);
+  if(logs.length===0){
+    $("homeDiagEmpty").style.display="";
+    return;
+  }
+  $("homeDiagEmpty").style.display="none";
+
+  logs.forEach(log=>{
+    const t = new Date(log.createdAt);
+    const head = `${fmtMD(t)} ${fmtHM(t)}${log.plantName?` / ${log.plantName}`:""}`;
+    const top = (log.result && log.result[0]) ? log.result[0].title : "—";
+    const el=document.createElement("div");
+    el.className="card soft";
+    el.style.padding="12px";
+    el.innerHTML=`
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+        <div>
+          <div style="font-weight:999">${escapeHtml(head)}</div>
+          <div class="tiny" style="margin-top:4px">TOP：${escapeHtml(top)}</div>
+        </div>
+        <button class="btn ghost small">見る</button>
+      </div>
+    `;
+    el.querySelector("button").onclick=()=>{ showTab("diag"); openDiagModal(log.id); };
+    list.appendChild(el);
+  });
+}
+
+function openDiagModal(id){
+  const log = state.diagLogs.find(x=>x.id===id);
+  if(!log) return;
+  const img = log.photoDataUrl ? `<img class="modalImg" src="${log.photoDataUrl}" alt="">` : "";
+  const t = new Date(log.createdAt);
+  const head = `${fmtMD(t)} ${fmtHM(t)}${log.plantName?` / ${log.plantName}`:""}`;
+  const symTxt = (log.sym||[]).join(" / ") || "（未選択）";
+  const ctxTxt = `水:${log.ctx?.water||"unknown"} 光:${log.ctx?.light||"unknown"} 風:${log.ctx?.air||"unknown"}`;
+  openModal("診断ログ", `
+    ${img}
+    <div class="hr"></div>
+    <div style="font-weight:999">${escapeHtml(head)}</div>
+    <div class="tiny" style="margin-top:6px">症状：${escapeHtml(symTxt)}</div>
+    <div class="tiny" style="margin-top:6px">状況：${escapeHtml(ctxTxt)}</div>
+    ${log.memo? `<div class="hr"></div><div class="tiny"><b>メモ</b><br>${escapeHtml(log.memo)}</div>`:""}
+    <div class="hr"></div>
+    <div style="font-weight:999;margin-bottom:6px">結果</div>
+    ${(log.result||[]).map((r,i)=>`
+      <div class="card soft" style="padding:12px;margin-top:10px">
+        <div style="font-weight:999">${i+1}. ${escapeHtml(r.title||"")}</div>
+        <div class="tiny" style="margin-top:6px">${escapeHtml(r.why||"")}</div>
+        <div class="tiny" style="margin-top:8px"><b>対処</b>：${escapeHtml((r.actions||[]).join(" / "))}</div>
+      </div>
+    `).join("")}
+    <div class="hr"></div>
+    <div class="row" style="justify-content:space-between">
+      <button class="btn danger small" id="delLog">🧨 このログ削除</button>
+      <button class="btn ghost small" id="closeLog">閉じる</button>
+    </div>
+  `);
+  $("closeLog").onclick=closeModal;
+  $("delLog").onclick=()=>{
+    if(!confirm("このログを削除する？")) return;
+    state.diagLogs = state.diagLogs.filter(x=>x.id!==id);
+    saveState();
+    closeModal();
+    renderDiagLogs();
+    renderHomeDiag();
+  };
+}
+
+/* ===== バックアップ（保存ファイル） ===== */
+function downloadText(filename, text, mime="application/json"){
+  const blob = new Blob([text], { type:mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href=url; a.download=filename;
+  document.body.appendChild(a);
+  a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+function fmtYMD(d){
+  const x=new Date(d);
+  return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,"0")}-${String(x.getDate()).padStart(2,"0")}`;
+}
+$("exportBtn").addEventListener("click", ()=>{
+  downloadText(`PlantLog_保存ファイル_${fmtYMD(new Date())}.json`, JSON.stringify(state,null,2), "application/json");
+  alert("保存ファイルを作ったよ。『ファイル』アプリに保存してね。");
+});
+$("importBtn").addEventListener("click", async ()=>{
+  const f = $("importInput").files?.[0];
+  if(!f){ alert("保存ファイルを選んでね。"); return; }
+  try{
+    const obj = JSON.parse(await f.text());
+    if(!obj || !Array.isArray(obj.plants)) throw new Error("format");
+    state = {
+      plants: Array.isArray(obj.plants)?obj.plants:[],
+      diagLogs: Array.isArray(obj.diagLogs)?obj.diagLogs:[]
+    };
+    saveState();
+    renderPlants(); renderHome(); refreshDiagPlantSelect(); renderDiagLogs(); renderHomeDiag();
     showTab("home");
+    alert("復元できたよ。");
+  }catch{
+    alert("このファイルはPlantLogの保存ファイルじゃないかも。別のファイルを選んでね。");
+  }
+});
+$("wipeBtn").addEventListener("click", ()=>{
+  if(!confirm("本当に全部消す？（戻せない）\n先に『保存ファイルを作る』推奨！")) return;
+  state = { plants:[], diagLogs:[] };
+  saveState();
+  renderPlants(); renderHome(); refreshDiagPlantSelect(); renderDiagLogs(); renderHomeDiag();
+  alert("全データを消したよ。");
+});
+
+/* ===== ICS（期限日をカレンダーに入れる） ===== */
+function pad2(n){ return String(n).padStart(2,"0"); }
+function toIcsDate(d){
+  const x=new Date(d);
+  return `${x.getFullYear()}${pad2(x.getMonth()+1)}${pad2(x.getDate())}`;
+}
+function icsEscape(s){ return String(s).replace(/\\n/g," ").replace(/,/g,"\\,").replace(/;/g,"\\;"); }
+
+$("exportIcsBtn").addEventListener("click", ()=>{
+  const days = 60; // 60日分書き出し
+  const tasks = computeDueTasks(days);
+  if(tasks.length===0){ alert("予定に出せるタスクがない。"); return; }
+
+  const lines = [];
+  lines.push("BEGIN:VCALENDAR");
+  lines.push("VERSION:2.0");
+  lines.push("PRODID:-//PlantLog//JP");
+  lines.push("CALSCALE:GREGORIAN");
+
+  tasks.slice(0,200).forEach(t=>{
+    const dt = toIcsDate(t.due);
+    const uid = `${t.plantId}-${t.kind}-${dt}@plantlog`;
+    const summary = `${t.plantName}：${t.label}`;
+    lines.push("BEGIN:VEVENT");
+    lines.push(`UID:${uid}`);
+    lines.push(`DTSTAMP:${toIcsDate(new Date())}T000000Z`);
+    lines.push(`DTSTART;VALUE=DATE:${dt}`);
+    lines.push(`DTEND;VALUE=DATE:${dt}`);
+    lines.push(`SUMMARY:${icsEscape(summary)}`);
+    lines.push("END:VEVENT");
+  });
+
+  lines.push("END:VCALENDAR");
+
+  downloadText(`PlantLog_タスク通知_${fmtYMD(new Date())}.ics`, lines.join("\r\n"), "text/calendar");
+  alert("icsを作ったよ。カレンダーに読み込むと期限が入る。");
+});
+
+/* ===== 初期レンダリング ===== */
+renderPlants();
+renderHome();
+renderDiagLogs();
+renderHomeDiag();
+refreshDiagPlantSelect();
+showTab("home");
   </script>
+  
 </body>
 </html>
