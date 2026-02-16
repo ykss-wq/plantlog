@@ -556,6 +556,24 @@
   </nav>
 
   <script>
+    // ===== デバッグ：エラーを画面に出す（iPhoneでも分かる） =====
+(function(){
+  const show = (msg) => {
+    const pill = document.getElementById("statusPill");
+    if (pill) pill.textContent = "エラー: " + msg;
+    alert("エラー: " + msg); // 一旦は強制表示（原因が分かれば消してOK）
+  };
+
+  window.addEventListener("error", (e) => show(e.message || "unknown error"));
+  window.addEventListener("unhandledrejection", (e) => show(e?.reason?.message || String(e.reason || "unknown rejection")));
+
+  // 必須関数が無いと全部止まるので先にチェック
+  window.addEventListener("DOMContentLoaded", () => {
+    const mustFns = ["showTab","hideNav","saveState","renderPlants","renderHome","compressImageFile","fileToDataUrl","escapeHtml","nowISO","newId"];
+    const missingFns = mustFns.filter(n => typeof window[n] !== "function");
+    if (missingFns.length) show("関数が無い: " + missingFns.join(", "));
+  });
+})();
 /* ===== PlantLog v1 (PART 1/3) =====/
 /* ===== PlantLog v1 (PART 2/3) ===== */
 const $ = (id)=>document.getElementById(id);
